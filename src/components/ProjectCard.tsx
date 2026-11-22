@@ -22,7 +22,7 @@ export function ProjectCard({
       <div className="project-card__main">
         <ProjectMark
           project={project}
-          className="project-mark project-mark--card"
+          className="project-mark--card"
           iconClassName="h-6 w-6"
         />
 
