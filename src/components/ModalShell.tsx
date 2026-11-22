@@ -1,4 +1,10 @@
-import { useEffect, useRef, type ReactNode } from 'react';
+import {
+  useEffect,
+  useRef,
+  type MouseEvent,
+  type ReactNode,
+  type SyntheticEvent,
+} from 'react';
 
 interface ModalShellProps {
   isOpen: boolean;
@@ -30,12 +36,12 @@ export function ModalShell({
     }
   }, [isOpen]);
 
-  const handleCancel = (event: React.SyntheticEvent<HTMLDialogElement>) => {
+  const handleCancel = (event: SyntheticEvent<HTMLDialogElement>) => {
     event.preventDefault();
     onClose();
   };
 
-  const handleBackdropClick = (event: React.MouseEvent<HTMLDialogElement>) => {
+  const handleBackdropClick = (event: MouseEvent<HTMLDialogElement>) => {
     if (event.target === event.currentTarget) onClose();
   };
 
