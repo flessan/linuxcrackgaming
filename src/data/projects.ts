@@ -1,4 +1,4 @@
-export type ProjectCategory = 'rewrites' | 'runtimes' | 'recomp';
+export type ProjectCategory = 'rewrites' | 'runtimes' | 'recomp' | 'tools';
 export type PackageFormat = '.AppImage' | '.Flatpak' | 'Native';
 export type PastelTone = 'peach' | 'matcha' | 'honey' | 'berry' | 'chamomile';
 
@@ -560,5 +560,176 @@ export const INITIAL_PROJECTS: GameProject[] = [
     ],
     vibeNote: 'Crystalline Cocoon vibes, freshly compiled on your penguin box.',
     emojiMark: '❄️',
+  },
+
+  {
+    id: 'heroic-games-launcher',
+    name: 'Heroic Games Launcher',
+    gameTitle: 'GOG, Epic Games & Amazon Games',
+    tagline: 'A unified launcher for your GOG, Epic and Amazon game libraries.',
+    description:
+      'Heroic is an open-source game launcher for Linux, Windows and macOS. On Linux it can install, update, repair and launch games from GOG, Epic Games Store and Amazon Games, while letting you choose Wine or Proton compatibility tools.',
+    howItWorks:
+      'Heroic connects to each store through its own download integrations and launches Windows titles through Wine or Proton. It can also import existing installations, organize categories and sync supported cloud saves.',
+    category: 'runtimes',
+    categoryLabel: 'Game Launcher',
+    tone: 'honey',
+    language: 'TypeScript / Electron',
+    license: 'GPL-3.0',
+    githubUrl: 'https://github.com/Heroic-Games-Launcher/HeroicGamesLauncher',
+    homepageUrl: 'https://heroicgameslauncher.com/',
+    repoSlug: 'Heroic-Games-Launcher/HeroicGamesLauncher',
+    formats: ['.Flatpak', '.AppImage'],
+    primaryFormat: '.Flatpak',
+    steamDeckFriendly: true,
+    byocRequirement: 'Requires accounts and game entitlements from the stores you use. Game compatibility and anti-cheat support vary by title.',
+    highlights: [
+      'Combines GOG, Epic Games Store and Amazon Games libraries in one place',
+      'Installs, repairs, updates and imports existing game installations',
+      'Supports Wine and Proton runners with compatibility information',
+      'Includes Steam Deck compatibility details and cloud-save support where available',
+    ],
+    recipes: [
+      {
+        label: '.Flatpak (Flathub)',
+        format: '.Flatpak',
+        command: 'flatpak install flathub com.heroicgameslauncher.hgl',
+        note: 'The Flatpak is the recommended cross-distro option.',
+      },
+      {
+        label: '.AppImage',
+        format: '.AppImage',
+        command: 'chmod +x Heroic*.AppImage\n./Heroic*.AppImage',
+        note: 'Download the Linux AppImage from the project releases before running these commands.',
+      },
+    ],
+    vibeNote: 'One library shelf for several PC game stores.',
+    emojiMark: 'icon:gamepad',
+  },
+  {
+    id: 'lutris',
+    name: 'Lutris',
+    gameTitle: 'Games from many eras and platforms',
+    tagline: 'A game library and installer hub for native games, emulators and Wine.',
+    description:
+      'Lutris is an open gaming platform for Linux. It brings together games from different eras and systems by combining emulators, engine reimplementations and compatibility layers, with community-maintained installer scripts.',
+    howItWorks:
+      'Lutris manages game entries and runners from one desktop client. Installer scripts automate setup steps and can be customized, while existing libraries from services such as Steam, GOG and Humble Bundle can be connected.',
+    category: 'runtimes',
+    categoryLabel: 'Game Launcher',
+    tone: 'matcha',
+    language: 'Python / GTK',
+    license: 'GPL-3.0',
+    githubUrl: 'https://github.com/lutris/lutris',
+    homepageUrl: 'https://lutris.net/',
+    repoSlug: 'lutris/lutris',
+    formats: ['.Flatpak', 'Native'],
+    primaryFormat: '.Flatpak',
+    steamDeckFriendly: true,
+    byocRequirement: 'Game installers may require original game files, store accounts, emulators or separately installed Wine components.',
+    highlights: [
+      'Centralizes games from different stores, emulators and compatibility layers',
+      'Community installer scripts automate common setup steps',
+      'Supports Wine runners and native Linux games',
+      'Available through Flathub and many distribution repositories',
+    ],
+    recipes: [
+      {
+        label: '.Flatpak (Flathub)',
+        format: '.Flatpak',
+        command: 'flatpak install flathub net.lutris.Lutris\nflatpak run net.lutris.Lutris',
+        note: 'The Flatpak includes the runtime dependencies; Windows games may still need suitable drivers and runner configuration.',
+      },
+      {
+        label: 'Arch Linux',
+        format: 'Native',
+        command: 'sudo pacman -S lutris',
+        note: 'Lutris is available in the official Arch Linux repositories.',
+      },
+    ],
+    vibeNote: 'A single front door for a very mixed game collection.',
+    emojiMark: 'icon:gamepad',
+  },
+  {
+    id: 'bottles',
+    name: 'Bottles',
+    gameTitle: 'Windows games and applications',
+    tagline: 'Manage isolated Wine environments with a clear desktop workflow.',
+    description:
+      'Bottles helps run Windows software and games on Linux. Each bottle has its own environment, runner and configuration, with tools for installing dependencies, applying gaming tweaks, monitoring processes and restoring backups.',
+    howItWorks:
+      'Bottles groups Wine prefixes into separate, manageable environments. Its runner and dependency controls make it easier to keep different Windows applications isolated instead of sharing one global prefix.',
+    category: 'runtimes',
+    categoryLabel: 'Compatibility Layer',
+    tone: 'chamomile',
+    language: 'Python / GTK',
+    license: 'GPL-3.0',
+    githubUrl: 'https://github.com/bottlesdevs/Bottles',
+    homepageUrl: 'https://usebottles.com/',
+    repoSlug: 'bottlesdevs/Bottles',
+    formats: ['.Flatpak'],
+    primaryFormat: '.Flatpak',
+    steamDeckFriendly: false,
+    byocRequirement: 'You still need legitimate game installers, required accounts and compatible graphics drivers. Not every Windows game works.',
+    highlights: [
+      'Keeps Windows applications separated into individual environments',
+      'Switches runners and installs common dependencies per bottle',
+      'Includes gaming-focused settings, process monitoring and recovery tools',
+      'Distributed primarily as a sandboxed Flatpak',
+    ],
+    recipes: [
+      {
+        label: '.Flatpak (Flathub)',
+        format: '.Flatpak',
+        command: 'flatpak install flathub com.usebottles.bottles\nflatpak run com.usebottles.bottles',
+        note: 'Bottles is primarily distributed as a Flatpak.',
+      },
+    ],
+    vibeNote: 'Separate, tidy environments instead of one tangled Wine prefix.',
+    emojiMark: 'icon:layers',
+  },
+  {
+    id: 'protonup-qt',
+    name: 'ProtonUp-Qt',
+    gameTitle: 'Steam, Lutris, Heroic & Bottles',
+    tagline: 'Install and manage community Proton and Wine compatibility tools.',
+    description:
+      'ProtonUp-Qt is a graphical manager for compatibility tools such as GE-Proton, Luxtorpeda and other Wine/Proton builds. It supports common Linux game launchers and helps keep custom runners organized.',
+    howItWorks:
+      'The app downloads supported compatibility-tool releases and places them in the appropriate launcher directories. It is an independent utility and is not affiliated with the developers of the runners or launchers it manages.',
+    category: 'tools',
+    categoryLabel: 'Compatibility Tool',
+    tone: 'berry',
+    language: 'Python / Qt 6',
+    license: 'GPL-3.0',
+    githubUrl: 'https://github.com/DavidoTek/ProtonUp-Qt',
+    homepageUrl: 'https://davidotek.github.io/protonup-qt/',
+    repoSlug: 'DavidoTek/ProtonUp-Qt',
+    formats: ['.Flatpak', '.AppImage'],
+    primaryFormat: '.Flatpak',
+    steamDeckFriendly: true,
+    byocRequirement: 'Requires a supported launcher such as Steam, Lutris, Heroic or Bottles. It manages compatibility tools; it does not provide game licenses.',
+    highlights: [
+      'Installs and updates GE-Proton and other community compatibility tools',
+      'Supports Steam, Lutris, Heroic Games Launcher and Bottles',
+      'Available as a Flathub Flatpak and a portable AppImage',
+      'Includes handheld-friendly controls for supported Steam Deck workflows',
+    ],
+    recipes: [
+      {
+        label: '.Flatpak (Flathub)',
+        format: '.Flatpak',
+        command: 'flatpak install flathub net.davidotek.pupgui2',
+        note: 'The Flathub release may follow the upstream AppImage release by a few days.',
+      },
+      {
+        label: '.AppImage',
+        format: '.AppImage',
+        command: 'chmod +x ProtonUp-Qt*.AppImage\n./ProtonUp-Qt*.AppImage',
+        note: 'Download the current AppImage from the project releases first.',
+      },
+    ],
+    vibeNote: 'A small toolkit for keeping your compatibility runners current.',
+    emojiMark: 'icon:wrench',
   },
 ];
