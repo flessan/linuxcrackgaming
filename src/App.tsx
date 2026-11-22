@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import {
   Search,
   Sparkles,
@@ -13,6 +13,9 @@ import {
   Heart,
   Check,
   RotateCcw,
+  Grid2X2,
+  List,
+  Gamepad2,
 } from 'lucide-react';
 import {
   GameProject,
@@ -25,7 +28,7 @@ import { ProjectDrawer } from './components/ProjectDrawer';
 import { TrayDrawer } from './components/TrayDrawer';
 import { SuggestModal } from './components/SuggestModal';
 import { CopyPill } from './components/CopyPill';
-import { DiscordChat } from './components/DiscordChat';
+const DiscordChat = lazy(() => import('./components/DiscordChat').then((module) => ({ default: module.DiscordChat })));
 
 const STORAGE_TRAY_KEY = 'linuxcrackgaming_tray_v1';
 const STORAGE_CUSTOM_KEY = 'linuxcrackgaming_custom_v1';
@@ -55,6 +58,9 @@ export function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all');
   const [formatFilter, setFormatFilter] = useState<FormatFilter>('all');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [sortMode, setSortMode] = useState<'recommended' | 'name' | 'category'>('recommended');
+  const [isDiscordOpen, setIsDiscordOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<GameProject | null>(null);
   const [isTrayOpen, setIsTrayOpen] = useState(false);
   const [isSuggestOpen, setIsSuggestOpen] = useState(false);
@@ -114,7 +120,7 @@ export function App() {
 
   const filteredProjects = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
-    return allProjects.filter((project) => {
+    const results = allProjects.filter((project) => {
       if (categoryFilter !== 'all' && project.category !== categoryFilter) {
         return false;
       }
@@ -136,7 +142,10 @@ export function App() {
         .toLowerCase();
       return haystack.includes(q);
     });
-  }, [allProjects, categoryFilter, formatFilter, searchQuery]);
+    if (sortMode === 'name') results.sort((a, b) => a.name.localeCompare(b.name));
+    if (sortMode === 'category') results.sort((a, b) => a.categoryLabel.localeCompare(b.categoryLabel) || a.name.localeCompare(b.name));
+    return results;
+  }, [allProjects, categoryFilter, formatFilter, searchQuery, sortMode]);
 
   const savedProjects = useMemo(
     () =>
@@ -155,6 +164,7 @@ export function App() {
       rewrites: allProjects.filter((p) => p.category === 'rewrites').length,
       runtimes: allProjects.filter((p) => p.category === 'runtimes').length,
       recomp: allProjects.filter((p) => p.category === 'recomp').length,
+      tools: allProjects.filter((p) => p.category === 'tools').length,
     }),
     [allProjects]
   );
@@ -609,6 +619,7 @@ export function App() {
                     { id: 'rewrites', label: 'Engine Rewrites', count: categoryCounts.rewrites },
                     { id: 'runtimes', label: 'Runtimes & Launchers', count: categoryCounts.runtimes },
                     { id: 'recomp', label: 'Native Recomp', count: categoryCounts.recomp },
+                    { id: 'tools', label: 'Compatibility Tools', count: categoryCounts.tools },
                   ] as const
                 ).map((tab) => {
                   const active = categoryFilter === tab.id;
@@ -718,6 +729,7 @@ export function App() {
                   isSaved={savedIds.includes(project.id)}
                   onToggleSave={toggleSave}
                   onSelect={(p) => setSelectedProject(p)}
+                  layout={viewMode}
                 />
               ))}
             </div>
