@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { X, PlusCircle, Sparkles } from 'lucide-react';
-import { GameProject, PackageFormat, PastelTone, ProjectCategory } from '../data/projects';
+import { useState, type FormEvent } from 'react';
+import { PlusCircle, X } from 'lucide-react';
+import type { GameProject, PackageFormat, PastelTone, ProjectCategory } from '../data/projects';
+import { ModalShell } from './ModalShell';
 
 interface SuggestModalProps {
   isOpen: boolean;
@@ -8,246 +9,210 @@ interface SuggestModalProps {
   onAddProject: (project: GameProject) => void;
 }
 
-const EMOJI_CHOICES = ['🎮', '🦊', '🍄', '🚀', '🧸', '🍓', '⚔️', '🎲'];
+const CATEGORY_LABELS: Record<ProjectCategory, string> = {
+  rewrites: 'Engine rewrite',
+  runtimes: 'Launcher or runtime',
+  recomp: 'Native recompilation',
+  tools: 'Compatibility tool',
+};
 
-export const SuggestModal: React.FC<SuggestModalProps> = ({ isOpen, onClose, onAddProject }) => {
+const CATEGORY_TONES: Record<ProjectCategory, PastelTone> = {
+  rewrites: 'peach',
+  runtimes: 'matcha',
+  recomp: 'berry',
+  tools: 'chamomile',
+};
+
+function parseGitHubRepo(value: string) {
+  const trimmed = value.trim();
+  const candidate = trimmed.startsWith('http')
+    ? trimmed
+    : `https://github.com/${trimmed.replace(/^\/+/, '')}`;
+
+  try {
+    const url = new URL(candidate);
+    const match = url.pathname.match(/^\/([A-Za-z0-9_.-]+)\/([A-Za-z0-9_.-]+)\/?$/);
+    if (url.protocol !== 'https:' || url.hostname.toLowerCase() !== 'github.com' || !match) {
+      return null;
+    }
+
+    const owner = match[1];
+    const repository = match[2].replace(/\.git$/i, '');
+    return {
+      repoSlug: `${owner}/${repository}`,
+      githubUrl: `https://github.com/${owner}/${repository}`,
+    };
+  } catch {
+    return null;
+  }
+}
+
+export function SuggestModal({ isOpen, onClose, onAddProject }: SuggestModalProps) {
   const [name, setName] = useState('');
   const [gameTitle, setGameTitle] = useState('');
   const [githubUrl, setGithubUrl] = useState('');
   const [tagline, setTagline] = useState('');
-  const [language, setLanguage] = useState('Rust');
-  const [format, setFormat] = useState<PackageFormat>('.AppImage');
+  const [language, setLanguage] = useState('');
+  const [format, setFormat] = useState<PackageFormat>('Native');
   const [category, setCategory] = useState<ProjectCategory>('rewrites');
-  const [emoji, setEmoji] = useState('🎮');
+  const [error, setError] = useState('');
 
-  if (!isOpen) return null;
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name.trim() || !gameTitle.trim() || !githubUrl.trim()) return;
-
-    const cleanUrl = githubUrl.trim().startsWith('http')
-      ? githubUrl.trim()
-      : `https://github.com/${githubUrl.trim().replace(/^\/+/, '')}`;
-
-    const slugMatch = cleanUrl.match(/github\.com\/([^/]+\/[^/]+)/i);
-    const repoSlug = slugMatch ? slugMatch[1].replace(/\.git$/, '') : name.toLowerCase().replace(/\s+/g, '-');
-
-    const tones: PastelTone[] = ['peach', 'matcha', 'honey', 'berry', 'chamomile'];
-    const randomTone = tones[Math.floor(Math.random() * tones.length)];
-
-    const categoryLabelMap: Record<ProjectCategory, string> = {
-      rewrites: 'Engine Rewrite',
-      runtimes: 'Runtime & Wrapper',
-      recomp: 'Static Recomp Port',
-    };
-
-    const newProject: GameProject = {
-      id: `custom-${Date.now()}`,
-      name: name.trim(),
-      gameTitle: gameTitle.trim(),
-      tagline:
-        tagline.trim() || `Community-added open-source Linux way to play ${gameTitle.trim()}.`,
-      description:
-        tagline.trim() ||
-        `Pinned by you onto the LinuxCrackGaming shelf! Check out the repository on GitHub for the latest releases, build flags, and community notes.`,
-      howItWorks: `Distributed via ${format} and built with ${language.trim() || 'open-source love'} for smooth Linux play.`,
-      category,
-      categoryLabel: categoryLabelMap[category],
-      tone: randomTone,
-      language: language.trim() || 'Open Source',
-      license: 'GitHub Repo',
-      githubUrl: cleanUrl,
-      repoSlug,
-      formats: [format],
-      primaryFormat: format,
-      steamDeckFriendly: true,
-      byocRequirement: 'Bring your own legally owned copy or game files as noted in the repo README.',
-      highlights: [
-        'Added directly by you to your personal LinuxCrackGaming shelf',
-        `Packaged for Linux via ${format}`,
-        `Source code hosted at ${repoSlug}`,
-      ],
-      recipes: [
-        {
-          label: format,
-          format,
-          command:
-            format === '.Flatpak'
-              ? `# Check GitHub Releases or Flathub for ${name.trim()}\nflatpak install --user ./${name.trim().replace(/\s+/g, '')}.flatpak`
-              : format === '.AppImage'
-                ? `# Download ${name.trim()} AppImage from ${cleanUrl}/releases\nchmod +x ${name.trim().replace(/\s+/g, '')}*.AppImage\n./${name.trim().replace(/\s+/g, '')}*.AppImage`
-                : `git clone ${cleanUrl}\ncd ${repoSlug.split('/').pop() ?? 'project'}`,
-        },
-      ],
-      vibeNote: 'Freshly pinned to your cozy shelf!',
-      emojiMark: emoji,
-    };
-
-    onAddProject(newProject);
+  const resetForm = () => {
     setName('');
     setGameTitle('');
     setGithubUrl('');
     setTagline('');
+    setLanguage('');
+    setFormat('Native');
+    setCategory('rewrites');
+    setError('');
+  };
+
+  const handleClose = () => {
+    setError('');
+    onClose();
+  };
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const repository = parseGitHubRepo(githubUrl);
+    if (!repository) {
+      setError('Enter a valid GitHub repository URL or owner/repository.');
+      return;
+    }
+
+    const cleanName = name.trim();
+    const cleanGame = gameTitle.trim();
+    const cleanLanguage = language.trim() || 'Not specified';
+    const recipeCommand = format === 'Native'
+      ? `git clone ${repository.githubUrl}.git\ncd ${repository.repoSlug.split('/').pop()}`
+      : `xdg-open ${repository.githubUrl}/releases`;
+
+    const project: GameProject = {
+      id: `custom-${Date.now()}`,
+      name: cleanName,
+      gameTitle: cleanGame,
+      tagline: tagline.trim() || `Community suggestion for ${cleanGame} on Linux.`,
+      description: tagline.trim() || 'Added by a community member. Visit the repository and review its README for current platform support, releases and requirements.',
+      howItWorks: 'This entry was added locally by a visitor. Its technical details have not been independently verified.',
+      category,
+      categoryLabel: CATEGORY_LABELS[category],
+      tone: CATEGORY_TONES[category],
+      language: cleanLanguage,
+      license: 'Not verified',
+      githubUrl: repository.githubUrl,
+      repoSlug: repository.repoSlug,
+      formats: [format],
+      primaryFormat: format,
+      steamDeckFriendly: false,
+      byocRequirement: 'Review the project README and license. Some projects require original game files, a store account, or additional dependencies.',
+      highlights: [
+        'Added to this browser profile by a community member',
+        `Category: ${CATEGORY_LABELS[category]}`,
+        'Project details should be checked against the upstream repository',
+      ],
+      recipes: [{
+        label: format === 'Native' ? 'Clone source' : 'Open releases',
+        format,
+        command: recipeCommand,
+        note: format === 'Native'
+          ? 'Read the upstream build instructions before compiling.'
+          : `Check the upstream release page for an actual ${format} package before installing anything.`,
+      }],
+      vibeNote: 'A community-submitted project.',
+      emojiMark: `icon:${category}`,
+    };
+
+    onAddProject(project);
+    resetForm();
     onClose();
   };
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-[#352A24]/30 p-4 backdrop-blur-[3px]"
-      onClick={onClose}
-      role="dialog"
-      aria-modal="true"
-      aria-label="Pin a GitHub project"
-    >
-      <div
-        className="w-full max-w-lg rounded-[32px] border border-[#EAE0D0] bg-[#FFFDF9] p-6 shadow-2xl sm:p-8"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-start justify-between gap-4">
+    <ModalShell isOpen={isOpen} onClose={handleClose} label="Suggest a Linux gaming project" variant="modal">
+      <div className="dialog-panel dialog-panel--modal">
+        <header className="flex items-start justify-between gap-4">
           <div>
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#E9F2E8] px-3 py-0.5 text-xs font-semibold text-[#477150]">
-              <Sparkles className="h-3.5 w-3.5" />
-              Community Pantry
+            <span className="inline-flex rounded-full bg-[#E9F2E8] px-3 py-1 text-xs font-semibold text-[#477150]">
+              Community catalogue
             </span>
-            <h2 className="font-display mt-1.5 text-2xl font-semibold text-[#352A24]">
-              Pin a GitHub Gem
-            </h2>
-            <p className="mt-1 text-sm text-[#7B695D]">
-              Know another cool open-source rewrite, wrapper, or port? Pop it onto your shelf!
+            <h2 className="font-display mt-2 text-2xl font-semibold text-[#352A24]">Suggest a project</h2>
+            <p className="mt-1 max-w-md text-sm leading-relaxed text-[#7B695D]">
+              Add a GitHub project to your local catalogue. Community entries are not automatically verified.
             </p>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close modal"
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-[#EAE0D0] bg-[#FAF4EB] text-[#6B5A4E] hover:bg-[#EFE5D6] cursor-pointer"
-          >
-            <X className="h-4 w-4" />
+          <button type="button" onClick={handleClose} aria-label="Close suggestion form" className="icon-action">
+            <X className="h-5 w-5" aria-hidden="true" />
           </button>
-        </div>
+        </header>
 
-        <form onSubmit={handleSubmit} className="mt-5 space-y-4">
-          <div className="grid gap-3.5 sm:grid-cols-2">
+        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          <div className="grid gap-4 sm:grid-cols-2">
             <label className="block">
-              <span className="text-xs font-semibold text-[#5C4B40]">Project Name *</span>
-              <input
-                required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. OpenTTD or 2Ship2Harkinian"
-                className="mt-1 w-full rounded-2xl border border-[#E6DAC8] bg-[#FBF7F0] px-3.5 py-2.5 text-sm text-[#352A24] placeholder:text-[#A59486] focus:border-[#D97757] focus:outline-none"
-              />
+              <span className="form-label">Project name</span>
+              <input required maxLength={70} value={name} onChange={(event) => setName(event.target.value)} placeholder="Example: OpenTTD" className="form-control" />
             </label>
             <label className="block">
-              <span className="text-xs font-semibold text-[#5C4B40]">Game it Plays *</span>
-              <input
-                required
-                value={gameTitle}
-                onChange={(e) => setGameTitle(e.target.value)}
-                placeholder="e.g. Transport Tycoon"
-                className="mt-1 w-full rounded-2xl border border-[#E6DAC8] bg-[#FBF7F0] px-3.5 py-2.5 text-sm text-[#352A24] placeholder:text-[#A59486] focus:border-[#D97757] focus:outline-none"
-              />
+              <span className="form-label">Game or software</span>
+              <input required maxLength={100} value={gameTitle} onChange={(event) => setGameTitle(event.target.value)} placeholder="Example: Transport Tycoon" className="form-control" />
             </label>
           </div>
 
           <label className="block">
-            <span className="text-xs font-semibold text-[#5C4B40]">GitHub URL or owner/repo *</span>
+            <span className="form-label">GitHub repository</span>
             <input
               required
               value={githubUrl}
-              onChange={(e) => setGithubUrl(e.target.value)}
-              placeholder="https://github.com/owner/project"
-              className="mt-1 w-full rounded-2xl border border-[#E6DAC8] bg-[#FBF7F0] px-3.5 py-2.5 text-sm text-[#352A24] placeholder:text-[#A59486] focus:border-[#D97757] focus:outline-none"
+              onChange={(event) => { setGithubUrl(event.target.value); setError(''); }}
+              placeholder="https://github.com/owner/repository"
+              autoCapitalize="off"
+              autoComplete="url"
+              spellCheck={false}
+              className="form-control"
             />
           </label>
+          {error && <p className="form-error" role="alert">{error}</p>}
 
           <label className="block">
-            <span className="text-xs font-semibold text-[#5C4B40]">Why is it awesome?</span>
-            <input
-              value={tagline}
-              onChange={(e) => setTagline(e.target.value)}
-              placeholder="Fast Rust rewrite with shader perks & native Wayland!"
-              className="mt-1 w-full rounded-2xl border border-[#E6DAC8] bg-[#FBF7F0] px-3.5 py-2.5 text-sm text-[#352A24] placeholder:text-[#A59486] focus:border-[#D97757] focus:outline-none"
-            />
+            <span className="form-label">Short description</span>
+            <input maxLength={180} value={tagline} onChange={(event) => setTagline(event.target.value)} placeholder="What makes this project useful?" className="form-control" />
           </label>
 
-          <div className="grid gap-3.5 sm:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-3">
             <label className="block">
-              <span className="text-xs font-semibold text-[#5C4B40]">Category</span>
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value as ProjectCategory)}
-                className="mt-1 w-full rounded-2xl border border-[#E6DAC8] bg-[#FBF7F0] px-3 py-2.5 text-sm text-[#352A24] focus:border-[#D97757] focus:outline-none"
-              >
-                <option value="rewrites">Engine Rewrite</option>
-                <option value="runtimes">Runtime / Launcher</option>
-                <option value="recomp">Static Recomp</option>
+              <span className="form-label">Category</span>
+              <select value={category} onChange={(event) => setCategory(event.target.value as ProjectCategory)} className="form-control">
+                <option value="rewrites">Engine rewrite</option>
+                <option value="runtimes">Launcher / runtime</option>
+                <option value="recomp">Native recompilation</option>
+                <option value="tools">Compatibility tool</option>
               </select>
             </label>
-
             <label className="block">
-              <span className="text-xs font-semibold text-[#5C4B40]">Linux Format</span>
-              <select
-                value={format}
-                onChange={(e) => setFormat(e.target.value as PackageFormat)}
-                className="mt-1 w-full rounded-2xl border border-[#E6DAC8] bg-[#FBF7F0] px-3 py-2.5 text-sm text-[#352A24] focus:border-[#D97757] focus:outline-none"
-              >
-                <option value=".AppImage">.AppImage</option>
-                <option value=".Flatpak">.Flatpak</option>
-                <option value="Native">Native / Source</option>
+              <span className="form-label">Package format</span>
+              <select value={format} onChange={(event) => setFormat(event.target.value as PackageFormat)} className="form-control">
+                <option value="Native">Source / native</option>
+                <option value=".Flatpak">Flatpak</option>
+                <option value=".AppImage">AppImage</option>
               </select>
             </label>
-
             <label className="block">
-              <span className="text-xs font-semibold text-[#5C4B40]">Language</span>
-              <input
-                value={language}
-                onChange={(e) => setLanguage(e.target.value)}
-                placeholder="Rust, C++, Go..."
-                className="mt-1 w-full rounded-2xl border border-[#E6DAC8] bg-[#FBF7F0] px-3 py-2.5 text-sm text-[#352A24] focus:border-[#D97757] focus:outline-none"
-              />
+              <span className="form-label">Main language</span>
+              <input maxLength={60} value={language} onChange={(event) => setLanguage(event.target.value)} placeholder="Rust, C++, Python..." className="form-control" />
             </label>
           </div>
 
-          <div>
-            <span className="text-xs font-semibold text-[#5C4B40]">Pick a cozy sticker</span>
-            <div className="mt-1.5 flex flex-wrap gap-2">
-              {EMOJI_CHOICES.map((em) => (
-                <button
-                  key={em}
-                  type="button"
-                  onClick={() => setEmoji(em)}
-                  className={`flex h-9 w-9 items-center justify-center rounded-xl border text-lg transition-all cursor-pointer ${
-                    emoji === em
-                      ? 'border-[#D97757] bg-[#FCECE4] scale-105'
-                      : 'border-[#EAE0D0] bg-[#FAF5EC] hover:bg-[#F2E9DB]'
-                  }`}
-                >
-                  {em}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex items-center justify-end gap-3 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-2xl px-4 py-2.5 text-sm font-semibold text-[#7A685B] hover:bg-[#F4ECE0] cursor-pointer"
-            >
+          <div className="flex flex-wrap items-center justify-end gap-3 border-t border-[#EFE6D9] pt-5">
+            <button type="button" onClick={handleClose} className="min-h-11 rounded-xl px-4 text-sm font-semibold text-[#7A685B] hover:bg-[#F4ECE0]">
               Cancel
             </button>
-            <button
-              type="submit"
-              className="inline-flex items-center gap-2 rounded-2xl bg-[#D97757] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#C66545] active:scale-95 cursor-pointer"
-            >
-              <PlusCircle className="h-4 w-4" />
-              Pin to Shelf
+            <button type="submit" className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#D97757] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#C66545]">
+              <PlusCircle className="h-4 w-4" aria-hidden="true" />
+              Add to this browser
             </button>
           </div>
         </form>
       </div>
-    </div>
+    </ModalShell>
   );
-};
+}
