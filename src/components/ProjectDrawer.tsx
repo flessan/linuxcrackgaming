@@ -128,7 +128,7 @@ export function ProjectDrawer({ project, isSaved, onToggleSave, onClose }: Proje
                     <Lightbulb className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
                     {currentRecipe.note}
                   </p>
-                )}
+               )}
               </div>
             )}
           </section>
@@ -174,7 +174,7 @@ export function ProjectDrawer({ project, isSaved, onToggleSave, onClose }: Proje
               target="_blank"
               rel="noreferrer"
               className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-[#E5D9C7] bg-[#FAF5EC] px-4 py-3 text-sm font-semibold text-[#4E3E34] transition-colors hover:bg-[#F2E4D9]"
-            >>
+            >
               <Globe className="h-4 w-4" aria-hidden="true" />
               Website
             </a>
