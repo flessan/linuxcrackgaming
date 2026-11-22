@@ -1,0 +1,107 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --cream-canvas: #fbf7f0;
+    --cream-surface: #fffdf9;
+    --cream-well: #f4ece0;
+    --cream-border: #ebe1d2;
+    --cocoa-ink: #352a24;
+    --hazelnut-muted: #756358;
+    --cinnamon-accent: #d97757;
+    --matcha-accent: #6c9a76;
+    --honey-accent: #dfa446;
+    --berry-accent: #9a74a8;
+    --chamomile-accent: #6c96bd;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    background-color: var(--cream-canvas);
+    color: var(--cocoa-ink);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  .font-display {
+    font-family: 'Fredoka', 'Plus Jakarta Sans', system-ui, sans-serif;
+  }
+
+  code,
+  pre,
+  .font-mono {
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  }
+}
+
+/* Soft creamy ambient backdrop blobs (subtle, warm, understated) */
+.cream-ambient-bg {
+  background-color: #fbf7f0;
+  background-image:
+    radial-gradient(circle at 12% 10%, rgba(244, 214, 193, 0.36) 0%, transparent 40%),
+    radial-gradient(circle at 88% 14%, rgba(215, 232, 214, 0.34) 0%, transparent 38%),
+    radial-gradient(circle at 50% 85%, rgba(247, 228, 192, 0.32) 0%, transparent 45%);
+}
+
+/* Creamy tactile card shadow */
+.cream-card {
+  background-color: #fffdf9;
+  border: 1.5px solid #ece2d3;
+  box-shadow:
+    0 10px 28px -12px rgba(122, 91, 63, 0.1),
+    0 2px 6px -2px rgba(122, 91, 63, 0.05);
+  transition:
+    transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.25s ease;
+}
+
+.cream-card:hover {
+  transform: translateY(-3px);
+  border-color: #dfc9b0;
+  box-shadow:
+    0 18px 36px -14px rgba(122, 91, 63, 0.14),
+    0 4px 10px -3px rgba(122, 91, 63, 0.07);
+}
+
+.cream-pill-shadow {
+  box-shadow: 0 6px 18px -6px rgba(122, 91, 63, 0.12);
+}
+
+@keyframes gentle-float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.animate-gentle-float {
+  animation: gentle-float 5.5s ease-in-out infinite;
+}
+
+.animate-gentle-float-delayed {
+  animation: gentle-float 6.2s ease-in-out 1.4s infinite;
+}
+
+/* Warm scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #f5eee3;
+}
+::-webkit-scrollbar-thumb {
+  background: #d8c8b4;
+  border-radius: 999px;
+  border: 2px solid #f5eee3;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #c5b098;
+}
