@@ -807,9 +807,10 @@
   white-space: nowrap;
 }
 
-.project-list-view > li {
+.project-list-view > li,
+.catalog-grid > li {
   content-visibility: auto;
-  contain-intrinsic-size: auto 7.5rem;
+  contain-intrinsic-size: auto 24rem;
 }
 
 .empty-state {
