@@ -181,9 +181,7 @@ export function App() {
             href="#top"
             className="group inline-flex items-center gap-2.5 focus:outline-none"
           >
-            <span className="flex h-10 w-10 items-center justify-center rounded-2xl border border-[#ECDCC7] bg-[#FFFDF9] text-xl shadow-xs transition-transform duration-300 group-hover:-rotate-6">
-              🍮
-            </span>
+            <span className="flex h-10 w-10 items-center justify-center rounded-2xl border border-[#ECDCC7] bg-[#FFFDF9] text-[#D97757] shadow-xs transition-transform duration-300 group-hover:-rotate-6"><Gamepad2 className="h-5 w-5" aria-hidden="true" /></span>
             <div className="leading-none">
               <span className="font-display block text-[1.15rem] font-semibold tracking-tight text-[#352A24]">
                 Linux<span className="text-[#D97757]">Crack</span>Gaming
@@ -402,14 +400,13 @@ export function App() {
           </div>
         </section>
 
-        <main style={{ maxWidth: '1120px', margin: '0 auto' }}>
-      <h2 className="font-display mt-2 text-3xl font-semibold text-[#352A24]" style={{ padding: '14px'}}>
-                Discord Chat!
-              </h2>
-      
-      {/* Your embedded Discord chat */}
-      <DiscordChat />
-    </main>
+        <section id="community-chat" className="mx-auto max-w-6xl px-5 py-8 sm:px-8" aria-labelledby="community-chat-title">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-[#ECE2D3] bg-[#FFFDF9] p-5">
+        <div><h2 id="community-chat-title" className="font-display text-xl font-semibold text-[#352A24]">Community chat</h2><p className="mt-1 text-sm text-[#78665A]">The embedded chat loads only when opened.</p></div>
+        <button type="button" onClick={() => setIsDiscordOpen((open) => !open)} aria-expanded={isDiscordOpen} className="rounded-full bg-[#352A24] px-4 py-2.5 text-sm font-semibold text-white">{isDiscordOpen ? 'Hide chat' : 'Open chat'}</button>
+      </div>
+      {isDiscordOpen && <div className="mt-4"><Suspense fallback={<p className="rounded-2xl bg-white p-6 text-sm text-[#78665A]">Loading community chat…</p>}><DiscordChat /></Suspense></div>}
+    </section>
 
         {/* House Specials: Cinnabar & Sober Spotlight */}
         <section id="specials" className="mx-auto max-w-6xl px-5 py-10 sm:px-8">
@@ -599,7 +596,7 @@ export function App() {
           <div className="mt-6 rounded-[28px] border border-[#ECE2D3] bg-[#FFFDF9]/90 p-4 sm:p-5 cream-pill-shadow">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               {/* Search input */}
-              <div className="relative flex-1 lg:max-w-sm">
+              <search className="relative flex-1 lg:max-w-sm" aria-label="Search catalogue">
                 <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9B897B]" />
                 <input
                   type="text"
@@ -609,7 +606,7 @@ export function App() {
                   aria-label="Search Linux gaming projects"
                   className="w-full rounded-2xl border border-[#EAE0D0] bg-[#FBF7F0] py-2.5 pl-10 pr-4 text-sm text-[#352A24] placeholder:text-[#A49284] focus:border-[#D97757] focus:outline-none"
                 />
-              </div>
+              </search>
 
               {/* Category pills */}
               <div className="flex flex-wrap items-center gap-2">
@@ -671,6 +668,16 @@ export function App() {
                 })}
               </div>
 
+              <div className="flex flex-wrap items-center gap-2">
+                <label className="text-xs font-medium text-[#8C796C]" htmlFor="catalog-sort">Sort by</label>
+                <select id="catalog-sort" value={sortMode} onChange={(event) => setSortMode(event.target.value as 'recommended' | 'name' | 'category')} className="rounded-xl border border-[#EAE0D0] bg-[#FFFDF9] px-3 py-2 text-xs font-semibold text-[#5C4B40]">
+                  <option value="recommended">Recommended</option><option value="name">Name</option><option value="category">Category</option>
+                </select>
+                <div className="view-toggle" role="group" aria-label="Catalogue view">
+                  <button type="button" onClick={() => setViewMode('grid')} aria-label="Grid view" aria-pressed={viewMode === 'grid'}><Grid2X2 className="h-4 w-4" /></button>
+                  <button type="button" onClick={() => setViewMode('list')} aria-label="List view" aria-pressed={viewMode === 'list'}><List className="h-4 w-4" /></button>
+                </div>
+              </div>
               {hasActiveFilters && (
                 <button
                   type="button"
@@ -691,7 +698,7 @@ export function App() {
           {/* Grid of Project Cards */}
           {filteredProjects.length === 0 ? (
             <div className="mt-8 rounded-[32px] border border-dashed border-[#DFD2BE] bg-[#FFFDF9] p-12 text-center">
-              <div className="text-4xl">🍪</div>
+              <div className="text-3xl text-[#A27A62]"><Search className="mx-auto h-8 w-8" aria-hidden="true" /></div>
               <h3 className="font-display mt-3 text-xl font-semibold text-[#352A24]">
                 No crumbs matched that search
               </h3>
@@ -721,18 +728,19 @@ export function App() {
               </div>
             </div>
           ) : (
-            <div className="mt-7 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <ul className={`mt-7 ${viewMode === 'grid' ? 'grid gap-6 sm:grid-cols-2 lg:grid-cols-3' : 'project-list-view'}`} role="list">
               {filteredProjects.map((project) => (
-                <ProjectCard
-                  key={project.id}
-                  project={project}
-                  isSaved={savedIds.includes(project.id)}
-                  onToggleSave={toggleSave}
-                  onSelect={(p) => setSelectedProject(p)}
-                  layout={viewMode}
-                />
+                <li key={project.id}>
+                  <ProjectCard
+                    project={project}
+                    isSaved={savedIds.includes(project.id)}
+                    onToggleSave={toggleSave}
+                    onSelect={(p) => setSelectedProject(p)}
+                    layout={viewMode}
+                  />
+                </li>
               ))}
-            </div>
+            </ul>
           )}
         </section>
 
