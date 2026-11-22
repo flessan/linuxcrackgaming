@@ -409,7 +409,7 @@ export function App() {
     </section>
 
         {/* House Specials: Cinnabar & Sober Spotlight */}
-        <section id="specials" className="mx-auto max-w-6xl px-5 py-10 sm:px-8">
+        <section id="specials" className="deferred-section mx-auto max-w-6xl px-5 py-10 sm:px-8">
           <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
             <div>
               <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FBEBD5] px-3 py-1 text-xs font-semibold text-[#9F6A1E]">
@@ -570,7 +570,7 @@ export function App() {
         </section>
 
         {/* Main Interactive Project Shelf */}
-        <section id="shelf" className="mx-auto max-w-6xl px-5 py-14 sm:px-8">
+        <section id="shelf" className="deferred-section mx-auto max-w-6xl px-5 py-14 sm:px-8">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
               <span className="inline-flex items-center gap-1.5 rounded-full bg-[#E9F2E8] px-3 py-1 text-xs font-semibold text-[#477150]">
@@ -728,7 +728,7 @@ export function App() {
               </div>
             </div>
           ) : (
-            <ul className={`mt-7 ${viewMode === 'grid' ? 'grid gap-6 sm:grid-cols-2 lg:grid-cols-3' : 'project-list-view'}`} role="list">
+            <ul className={`mt-7 ${viewMode === 'grid' ? 'catalog-grid grid gap-6 sm:grid-cols-2 lg:grid-cols-3' : 'project-list-view'}`} role="list">
               {filteredProjects.map((project) => (
                 <li key={project.id}>
                   <ProjectCard
@@ -745,7 +745,7 @@ export function App() {
         </section>
 
         {/* Cozy Pantry Notes + Crème Brûlée Illustration */}
-        <section id="pantry-notes" className="mx-auto max-w-6xl px-5 py-12 sm:px-8 lg:py-20">
+        <section id="pantry-notes" className="deferred-section mx-auto max-w-6xl px-5 py-12 sm:px-8 lg:py-20">
           <div className="rounded-[40px] border border-[#ECE2D3] bg-[#FFFDF9] p-6 shadow-[0_16px_42px_-20px_rgba(122,91,63,0.12)] sm:p-10 lg:p-12">
             <div className="grid items-center gap-10 lg:grid-cols-12">
               <div className="lg:col-span-5">
