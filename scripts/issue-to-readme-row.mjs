@@ -60,6 +60,16 @@ const license=cleanValue(answer('License',false))||'Not stated';
 const website=checkedHttps(cleanValue(answer('Official website',false)),'Official website');
 const image=checkedHttps(cleanValue(answer('Project screenshot or logo URL',false)),'Screenshot or logo URL');
 const sources=cleanValue(answer('Supporting sources'));
+const sourceUrls=[...sources.matchAll(/https:\/\/[^\s)]+/g)].map(match=>match[0].replace(/[.,;]+$/,''));
+if (!sourceUrls.length) throw new Error('Add at least one HTTPS URL in Supporting sources.');
+for (const value of sourceUrls) {
+  let parsed;
+  try { parsed = new URL(value); } catch { throw new Error('Invalid supporting source URL: '+value); }
+  if (parsed.protocol!=='https:') throw new Error('Supporting sources must use HTTPS.');
+}
+if (name.length>90) throw new Error('Project name must be 90 characters or fewer.');
+if (summary.length>500) throw new Error('Project summary must be 500 characters or fewer.');
+if (install.length>4000) throw new Error('Installation instructions must be 4,000 characters or fewer.');
 
 const categoryMap={
   'Engine rewrite':{key:'rewrites',tone:'peach'},

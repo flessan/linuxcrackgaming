@@ -26,19 +26,22 @@ Valid Linux formats are `.AppImage`, `.Flatpak` and `Native`. Only list formats 
 
 Use the [Suggest a project form](https://github.com/flessan/linuxcrackgaming/issues/new?template=add-project.yml). A maintainer reviews the repository, package details and supporting sources first.
 
-When the maintainer applies the `catalogue:approved` label, the `Catalogue issue to PR` workflow:
+When a user opens a project-submission issue, the `Catalogue issue to PR` workflow automatically:
 
-1. Converts the issue answers into a row in the README catalogue and an expanded detail block.
-2. Opens a pull request for review; it does not merge automatically.
-3. Dispatches the normal verification workflow against the generated PR branch because GitHub does not recursively trigger pull-request workflows from commits made with the default `GITHUB_TOKEN`.
+1. Validates the submitted repository URL, category, package format, install instructions and supporting HTTPS sources.
+2. Converts the answers into a readable README table row and expanded Markdown detail block.
+3. Opens a draft pull request, then comments on the issue with its link.
+4. Dispatches the normal verification workflow against the generated PR branch because GitHub does not recursively trigger pull-request workflows from commits made with the default `GITHUB_TOKEN`.
 
-The workflow creates the `catalogue:approved` label on its first project-submission issue, so the repository owner does not have to create it manually. The repository setting **Settings → Actions → General → Workflow permissions → Allow GitHub Actions to create and approve pull requests** must be enabled for automatic PR creation.
+Users can edit or reopen the issue to update the same draft PR. The workflow never merges submissions. A maintainer must review the repository, package details and commands and then merge the PR.
+
+The repository setting **Settings → Actions → General → Workflow permissions → Allow GitHub Actions to create and approve pull requests** must be enabled for automatic PR creation. Without this repository permission, Actions can validate the form but GitHub will reject the PR-creation step.
 
 Corrections to an existing entry should use the [Update a catalogue entry form](https://github.com/flessan/linuxcrackgaming/issues/new?template=update-project.yml). Corrections are not applied automatically; a maintainer updates README in a PR.
 
 ## Expanded detail blocks
 
-A detail block is a normal Markdown section wrapped in HTML `<details>`. It includes a two-column `Field / Information` table, a Highlights list and one or more `Recipe` sections with fenced shell commands. Use the existing entries in README as the template. The generator reads these blocks by their `<!-- lcg:project:start id="..." -->` marker.
+A detail block is a normal Markdown section wrapped in HTML `<details>`. It includes a two-column `Field / Information` table, a Highlights list and one or more `Recipe` sections with fenced shell commands. Use the existing entries in README as the template. Issue-generated detail blocks are created automatically from the submission form. The generator reads these blocks by their `<!-- lcg:project:start id="..." -->` marker.
 
 Avoid JSON or YAML blobs in README. Keep prose readable, commands copyable and any uncertainty explicit.
 

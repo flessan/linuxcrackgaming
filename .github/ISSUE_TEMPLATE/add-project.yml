@@ -5,7 +5,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Suggest a real project with a public source repository. A maintainer reviews the submission before an approved label creates a pull request to add it to the README catalogue.
+        Fill in the fields below and submit. GitHub Actions will automatically prepare a draft pull request with the README catalogue entry. A maintainer checks it before anything is merged.
   - type: input
     id: project-name
     attributes:
@@ -50,14 +50,13 @@ body:
         - AppImage
         - Native distribution package
         - Source build only
-        - Not sure
     validations:
       required: true
   - type: textarea
     id: install-instructions
     attributes:
       label: How can someone install this project on Linux?
-      description: Give a verified command, package name or official release/download instruction. Link to the upstream guide in Supporting sources.
+      description: Paste the exact Linux install command or official release steps. This is added to the draft PR as a code block, not executed by Actions.
       placeholder: |
         flatpak install flathub org.example.Project
     validations:
@@ -113,7 +112,7 @@ body:
     id: sources
     attributes:
       label: Supporting sources
-      description: Link to upstream documentation, installation instructions, release downloads or screenshots.
+      description: Add at least one HTTPS link to official installation docs, releases, source repository or compatibility notes. Actions checks that a secure source link is present.
       placeholder: |
         - https://...
     validations:

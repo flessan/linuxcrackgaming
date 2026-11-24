@@ -60,7 +60,7 @@ For a complete in-app detail drawer, add an optional expanded detail block under
 
 ### Add a project through an issue
 
-Use the [project submission form](https://github.com/flessan/linuxcrackgaming/issues/new?template=add-project.yml). After a maintainer reviews the submission, applying the `catalogue:approved` label creates a pull request with the README row and project details. Actions validates that pull request; it never merges the submission automatically.
+Use the [project submission form](https://github.com/flessan/linuxcrackgaming/issues/new?template=add-project.yml). After you submit it, GitHub Actions automatically creates or updates a draft pull request containing the README row and project details. A maintainer reviews the repository, package formats and install instructions before merging; submissions are never auto-merged.
 
 ## Expanded project details
 

@@ -4,7 +4,12 @@ on:
   issues:
     types:
       - opened
-      - labeled
+      - edited
+      - reopened
+
+concurrency:
+  group: catalogue-issue-${{ github.event.issue.number }}
+  cancel-in-progress: true
 
 permissions:
   contents: write
@@ -13,32 +18,8 @@ permissions:
   actions: write
 
 jobs:
-  prepare-approval-label:
-    if: github.event.action == 'opened' && !github.event.issue.pull_request && startsWith(github.event.issue.title, '[Project submission]')
-    runs-on: ubuntu-latest
-    steps:
-      - name: Ensure catalogue approval label exists
-        uses: actions/github-script@v8
-        with:
-          script: |
-            const labelName = 'catalogue:approved';
-            const { data: labels } = await github.rest.issues.listLabelsForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              per_page: 100
-            });
-            if (!labels.some((label) => label.name === labelName)) {
-              await github.rest.issues.createLabel({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                name: labelName,
-                color: '2F855A',
-                description: 'Maintainer reviewed the submission; create a catalogue PR.'
-              });
-            }
-
   create-catalogue-pr:
-    if: github.event.action == 'labeled' && github.event.label.name == 'catalogue:approved' && !github.event.issue.pull_request && startsWith(github.event.issue.title, '[Project submission]')
+    if: "!github.event.issue.pull_request && startsWith(github.event.issue.title, '[Project submission]')"
     runs-on: ubuntu-latest
     steps:
       - name: Check out main
@@ -51,14 +32,14 @@ jobs:
         with:
           node-version: 22
 
-      - name: Convert approved issue into README table row
+      - name: Turn the submitted form into a README entry
         id: generate
         env:
           ISSUE_BODY: ${{ github.event.issue.body }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
         run: node scripts/issue-to-readme-row.mjs
 
-      - name: Create pull request for review
+      - name: Open or update a draft pull request
         id: cpr
         uses: peter-evans/create-pull-request@v8
         with:
@@ -68,16 +49,62 @@ jobs:
           commit-message: "Add catalogue project from issue #${{ github.event.issue.number }}"
           title: "[Catalogue] Add project from issue #${{ github.event.issue.number }}"
           body: |
-            This pull request was generated from issue #${{ github.event.issue.number }} after a maintainer applied the `catalogue:approved` label.
+            This draft pull request was generated automatically from issue #${{ github.event.issue.number }}.
 
-            - Adds a human-readable row to the README catalogue.
-            - Adds the submitted project details and installation notes.
-            - Runs the README-to-JSON generator and production build for verification.
+            - Adds a readable row to the README project catalogue.
+            - Adds a collapsible detail block with the submitted information and installation instructions.
+            - Runs the README-to-JSON generator, TypeScript check and production build.
 
-            Please review the upstream repository, package formats, installation instructions and game-data requirements before merging.
+            **Maintainer review is still required.** Please verify the upstream repository, package formats, install commands, licence and game-data requirements before merging.
+
           draft: true
 
-      - name: Dispatch verification for the generated branch
+      - name: Comment with the generated pull request
+        if: steps.cpr.outputs.pull-request-number != ''
+        uses: actions/github-script@v8
+        env:
+          PULL_REQUEST_URL: ${{ steps.cpr.outputs.pull-request-url }}
+          PULL_REQUEST_NUMBER: ${{ steps.cpr.outputs.pull-request-number }}
+          PULL_REQUEST_OPERATION: ${{ steps.cpr.outputs.pull-request-operation }}
+        with:
+          script: |
+            const url = process.env.PULL_REQUEST_URL;
+            const number = process.env.PULL_REQUEST_NUMBER;
+            const operation = process.env.PULL_REQUEST_OPERATION || 'created';
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `Thanks! Actions ${operation} a draft catalogue PR: [#${number}](${url}).
+
+            The catalogue row and details have been prepared automatically. A maintainer will review the information and CI results before merging. You can edit this issue if something needs correcting; Actions will update the same draft PR.`
+            });
+
+      - name: Report that no changes were generated
+        if: steps.generate.outcome == 'success' && steps.cpr.outputs.pull-request-number == ''
+        uses: actions/github-script@v8
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: 'Actions did not create a pull request because the generated README content had no changes. The project may already be listed. Please check the catalogue or add any missing information before editing this issue again.'
+            });
+
+      - name: Explain an invalid or incomplete submission
+        if: failure()
+        uses: actions/github-script@v8
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: 'Actions could not prepare this catalogue entry. Check that the form includes an official GitHub repository, a confirmed Linux package format, installation instructions and at least one HTTPS source. If the workflow reports a permission error while creating the PR, a repository admin must enable **Settings → Actions → General → Allow GitHub Actions to create and approve pull requests**. You can edit this issue and Actions will try again.'
+            });
+
+      - name: Dispatch validation for the generated PR branch
         if: steps.cpr.outputs.pull-request-number != ''
         uses: actions/github-script@v8
         env:
@@ -90,16 +117,4 @@ jobs:
               workflow_id: 'verify.yml',
               ref: 'main',
               inputs: { checkout_ref: process.env.BRANCH_NAME }
-            });
-
-      - name: Explain failed conversion
-        if: failure() && steps.generate.outcome == 'failure'
-        uses: actions/github-script@v8
-        with:
-          script: |
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              body: 'The automatic catalogue PR could not be prepared. Please check that the issue includes a valid GitHub repository, a confirmed Linux package format, and installation instructions. A maintainer can correct the submission and apply the approval label again.'
             });
