@@ -32,6 +32,7 @@ export function ProjectCard({
           className={project.imageFit === 'cover' ? 'project-card__image project-card__image--cover' : 'project-card__image'}
           onError={(event) => {
             event.currentTarget.hidden = true;
+            event.currentTarget.parentElement?.classList.add('project-card__media--fallback');
           }}
         />
         {project.featured && <figcaption className="project-card__featured">Featured</figcaption>}
