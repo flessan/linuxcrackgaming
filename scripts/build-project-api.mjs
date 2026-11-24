@@ -78,6 +78,7 @@ function parseLinks(value) {
 }
 function parseDetailBlocks(source) {
   const entries = new Map();
+  const names = new Map();
   const pattern = /<!-- lcg:project:start id="([a-z0-9-]+)" -->([\s\S]*?)<!-- lcg:project:end -->/g;
   for (const match of source.matchAll(pattern)) {
     const id = match[1];
@@ -108,9 +109,16 @@ function parseDetailBlocks(source) {
         ...(note ? { note } : {}),
       });
     }
-    entries.set(id, { fields, highlights, recipes });
+    const entry = { fields, highlights, recipes };
+    entries.set(id, entry);
+    const summaryStart = body.indexOf('<summary><strong>');
+    const summaryEnd = body.indexOf('</strong>', summaryStart);
+    if (summaryStart >= 0 && summaryEnd > summaryStart) {
+      const displayName = cleanMarkdown(body.slice(summaryStart + 17, summaryEnd)).toLowerCase();
+      names.set(displayName, entry);
+    }
   }
-  return entries;
+  return { byId: entries, byName: names };
 }
 function parseInlineInstall(value, fallbackFormat) {
   const recipes = [];
@@ -131,7 +139,8 @@ function parseInlineInstall(value, fallbackFormat) {
 }
 
 const catalogue = section('<!-- lcg:catalog:start -->', '<!-- lcg:catalog:end -->');
-const details = parseDetailBlocks(section('<!-- lcg:details:start -->', '<!-- lcg:details:end -->'));
+const detailIndex = parseDetailBlocks(section('<!-- lcg:details:start -->', '<!-- lcg:details:end -->'));
+const details = detailIndex.byId;
 const tableLines = catalogue.split(/\r?\n/).map(line => line.trim()).filter(line => line.startsWith('|'));
 if (tableLines.length < 3) throw new Error('The README project catalogue table is empty or malformed.');
 const headers = splitTableRow(tableLines[0]).map(value => cleanMarkdown(value).toLowerCase());
@@ -153,7 +162,7 @@ for (const line of tableLines.slice(2)) {
   if (!name || !gameTitle || !tagline) throw new Error('Project rows need a name, game/software and overview.');
   const links = parseLinks(row.links);
   const candidateId = slugify(name);
-  const entry = details.get(candidateId);
+  const entry = details.get(candidateId) || detailIndex.byName.get(name.toLowerCase());
   const fields = entry?.fields ?? {};
   const id = fields['catalogue id'] || candidateId;
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id)) throw new Error('Invalid project ID: ' + id);
