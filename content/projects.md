@@ -793,3 +793,515 @@ Community suggestions should be submitted through the GitHub issue template at h
   "imageFit": "cover"
 }
 ```
+
+## OpenTTD
+
+```json
+{
+  "id": "openttd",
+  "name": "OpenTTD",
+  "gameTitle": "Transport Tycoon Deluxe-inspired transport simulation",
+  "tagline": "Build a transport empire with trains, roads, ships and aircraft.",
+  "description": "OpenTTD is an open-source transport simulation that expands on the original Transport Tycoon Deluxe formula. Design interconnected networks, manage routes and cargo, grow cities, and play solo or with other players.",
+  "howItWorks": "The project recreates and extends the classic transport-management gameplay in a modern, cross-platform C++ game. Free replacement graphics and sound sets make the default experience accessible without distributing the original commercial assets.",
+  "category": "games",
+  "categoryLabel": "Open-Source Simulation",
+  "tone": "honey",
+  "language": "C++",
+  "license": "GPL-2.0",
+  "githubUrl": "https://github.com/OpenTTD/OpenTTD",
+  "homepageUrl": "https://www.openttd.org/",
+  "repoSlug": "OpenTTD/OpenTTD",
+  "formats": [
+    ".Flatpak",
+    "Native"
+  ],
+  "primaryFormat": "Native",
+  "steamDeckFriendly": false,
+  "byocRequirement": "The game can use free replacement graphics and sound sets. Original Transport Tycoon Deluxe data is optional for players who want the classic assets.",
+  "highlights": [
+    "Build road, rail, air and sea transport networks",
+    "Manage cargo routes, timetables, vehicles and company finances",
+    "Play custom scenarios and community-made maps",
+    "Supports multiplayer and extensive user-created content"
+  ],
+  "recipes": [
+    {
+      "label": "Arch Linux",
+      "format": "Native",
+      "command": "sudo pacman -S openttd",
+      "note": "This command is for Arch Linux and derivatives. Other distributions provide OpenTTD through their package managers."
+    },
+    {
+      "label": "Flatpak",
+      "format": ".Flatpak",
+      "command": "flatpak install flathub org.openttd.OpenTTD",
+      "note": "The Flathub build is community-provided and marked unverified by Flathub; it is not maintained or endorsed by the OpenTTD team."
+    }
+  ],
+  "vibeNote": "A whole railway timetable, tucked into one delightful little map.",
+  "emojiMark": "icon:train",
+  "imageUrl": "https://github.com/OpenTTD.png?size=512",
+  "imageAlt": "OpenTTD project organization avatar",
+  "imageFit": "contain"
+}
+```
+
+## Luanti
+
+```json
+{
+  "id": "luanti",
+  "name": "Luanti",
+  "gameTitle": "Voxel sandbox worlds and community games",
+  "tagline": "A lightweight, moddable voxel platform for building, exploring and multiplayer.",
+  "description": "Luanti, formerly known as Minetest, is an open-source voxel game platform. Its engine powers block-based worlds, multiplayer servers and a wide range of community-created games, with a simple modding API and a focus on portability.",
+  "howItWorks": "Luanti provides the engine, world simulation and Lua-based modding APIs. Players can install game packages and mods from the in-game content browser or connect to community servers.",
+  "category": "games",
+  "categoryLabel": "Open-Source Game Platform",
+  "tone": "matcha",
+  "language": "C++ / Lua",
+  "license": "LGPL-2.1",
+  "githubUrl": "https://github.com/luanti-org/luanti",
+  "homepageUrl": "https://www.luanti.org/",
+  "repoSlug": "luanti-org/luanti",
+  "formats": [
+    ".Flatpak"
+  ],
+  "primaryFormat": ".Flatpak",
+  "steamDeckFriendly": false,
+  "byocRequirement": "No commercial game copy is required. Luanti is a platform; individual game packages and mods may have their own licenses and requirements.",
+  "highlights": [
+    "Lightweight voxel worlds with digging, building and crafting",
+    "Multiplayer servers and locally hosted worlds",
+    "Lua modding API and a large community content ecosystem",
+    "Designed to run on a wide range of desktop hardware"
+  ],
+  "recipes": [
+    {
+      "label": "Flatpak",
+      "format": ".Flatpak",
+      "command": "flatpak install flathub org.luanti.luanti",
+      "note": "The Luanti website lists Flatpak as the stable package for all Linux distributions."
+    }
+  ],
+  "vibeNote": "A tiny sandbox that can grow into a very large world.",
+  "emojiMark": "icon:cuboid",
+  "imageUrl": "https://github.com/luanti-org.png?size=512",
+  "imageAlt": "Luanti project organization avatar",
+  "imageFit": "contain"
+}
+```
+
+## Battle for Wesnoth
+
+```json
+{
+  "id": "battle-for-wesnoth",
+  "name": "Battle for Wesnoth",
+  "gameTitle": "Turn-based high-fantasy strategy",
+  "tagline": "Lead armies through a rich fantasy world of campaigns and tactical battles.",
+  "description": "Battle for Wesnoth is a free, open-source turn-based strategy game. Recruit units, use terrain and time-of-day advantages, and guide different factions through a large collection of story-driven campaigns or online multiplayer matches.",
+  "howItWorks": "The game combines hex-based tactical battles with campaign scripting and a content ecosystem built around units, maps, scenarios and add-ons.",
+  "category": "games",
+  "categoryLabel": "Open-Source Strategy",
+  "tone": "berry",
+  "language": "C++ / Lua / WML",
+  "license": "GPL-2.0",
+  "githubUrl": "https://github.com/wesnoth/wesnoth",
+  "homepageUrl": "https://www.wesnoth.org/",
+  "repoSlug": "wesnoth/wesnoth",
+  "formats": [
+    ".Flatpak"
+  ],
+  "primaryFormat": ".Flatpak",
+  "steamDeckFriendly": false,
+  "byocRequirement": "The game and its core campaigns are free and open source; no commercial game files are required.",
+  "highlights": [
+    "Large single-player campaigns with distinct stories and factions",
+    "Hex-grid tactical combat shaped by terrain and time of day",
+    "Online multiplayer and a broad user-created add-on catalogue",
+    "Map, scenario and campaign creation tools"
+  ],
+  "recipes": [
+    {
+      "label": "Flatpak",
+      "format": ".Flatpak",
+      "command": "flatpak install flathub org.wesnoth.Wesnoth",
+      "note": "The Wesnoth project lists Flatpak as a Linux distribution channel."
+    }
+  ],
+  "vibeNote": "A tactical campaign where even one hex can change the whole battle.",
+  "emojiMark": "icon:shield",
+  "imageUrl": "https://github.com/wesnoth.png?size=512",
+  "imageAlt": "Battle for Wesnoth project organization avatar",
+  "imageFit": "contain"
+}
+```
+
+## Endless Sky
+
+```json
+{
+  "id": "endless-sky",
+  "name": "Endless Sky",
+  "gameTitle": "Space exploration, trading and combat",
+  "tagline": "Start with a small ship, then make your own path across a vast galaxy.",
+  "description": "Endless Sky is a free, open-source space exploration and trading game. Take passenger or cargo jobs, upgrade ships, explore unfamiliar systems, fight pirates, and follow story missions or simply chart your own course.",
+  "howItWorks": "The game blends a 2D space sandbox with mission scripting, ship outfitting, trading systems and a community-maintained universe of additional content.",
+  "category": "games",
+  "categoryLabel": "Open-Source Space Game",
+  "tone": "chamomile",
+  "language": "C++",
+  "license": "GPL-3.0",
+  "githubUrl": "https://github.com/endless-sky/endless-sky",
+  "homepageUrl": "https://endless-sky.github.io/",
+  "repoSlug": "endless-sky/endless-sky",
+  "formats": [
+    ".Flatpak"
+  ],
+  "primaryFormat": ".Flatpak",
+  "steamDeckFriendly": false,
+  "byocRequirement": "The base game is free and open source; no commercial game data is required.",
+  "highlights": [
+    "Trade cargo, transport passengers and take on missions",
+    "Upgrade ships with new weapons, engines and equipment",
+    "Explore branching storylines and a large star map",
+    "Extend the universe with community-created content"
+  ],
+  "recipes": [
+    {
+      "label": "Flatpak",
+      "format": ".Flatpak",
+      "command": "flatpak install flathub io.github.endless_sky.endless_sky",
+      "note": "The Flathub package is available for Linux desktops."
+    }
+  ],
+  "vibeNote": "One small ship, a very large sky, and no fixed route to follow.",
+  "emojiMark": "icon:rocket",
+  "imageUrl": "https://github.com/endless-sky.png?size=512",
+  "imageAlt": "Endless Sky project organization avatar",
+  "imageFit": "contain"
+}
+```
+
+## OpenRA
+
+```json
+{
+  "id": "openra",
+  "name": "OpenRA",
+  "gameTitle": "Command & Conquer, Red Alert and Dune 2000",
+  "tagline": "A modern open-source RTS engine for classic Westwood-style strategy games.",
+  "description": "OpenRA rebuilds and modernizes early Westwood real-time strategy games through a flexible open-source engine and a set of mods. It adds modern controls, replays, observer tools and other quality-of-life features while preserving the feel of classic 2D and 2.5D RTS gameplay.",
+  "howItWorks": "The OpenRA engine provides shared simulation, rendering and networking systems. Individual mods define the rules, units and content for each supported strategy game.",
+  "category": "rewrites",
+  "categoryLabel": "RTS Engine Reimplementation",
+  "tone": "peach",
+  "language": "C#",
+  "license": "GPL-3.0",
+  "githubUrl": "https://github.com/OpenRA/OpenRA",
+  "homepageUrl": "https://www.openra.net/",
+  "repoSlug": "OpenRA/OpenRA",
+  "formats": [
+    ".Flatpak",
+    ".AppImage",
+    "Native"
+  ],
+  "primaryFormat": ".AppImage",
+  "steamDeckFriendly": false,
+  "byocRequirement": "OpenRA is free and includes three mods. Some mods can automatically download original game assets; others may require files from your own original game media. Check each mod's requirements.",
+  "highlights": [
+    "Modernized engine for classic Westwood real-time strategy games",
+    "Includes Red Alert, Tiberian Dawn and Dune 2000 mods",
+    "Modern controls, replays, observers and multiplayer",
+    "Linux AppImage builds and community Flatpak packaging"
+  ],
+  "recipes": [
+    {
+      "label": "AppImage",
+      "format": ".AppImage",
+      "command": "chmod +x OpenRA-*.AppImage\n./OpenRA-*.AppImage",
+      "note": "Download the Linux AppImage from the official OpenRA download page first. The project recommends AppImage if you need to switch between official and community mods."
+    },
+    {
+      "label": "Flatpak",
+      "format": ".Flatpak",
+      "command": "flatpak install flathub net.openra.OpenRA",
+      "note": "The official OpenRA download page warns that Flatpak sandboxing can interfere with switching between official and community mods."
+    },
+    {
+      "label": "Arch Linux",
+      "format": "Native",
+      "command": "sudo pacman -S openra",
+      "note": "This command is for Arch Linux and derivatives."
+    }
+  ],
+  "vibeNote": "Classic RTS energy, with a modern engine under the hood.",
+  "emojiMark": "icon:chess",
+  "imageUrl": "https://github.com/OpenRA.png?size=512",
+  "imageAlt": "OpenRA project organization avatar",
+  "imageFit": "contain"
+}
+```
+
+## VCMI
+
+```json
+{
+  "id": "vcmi",
+  "name": "VCMI",
+  "gameTitle": "Heroes of Might and Magic III",
+  "tagline": "An open-source engine that brings Heroes III to modern desktop systems.",
+  "description": "VCMI is an open-source engine for Heroes of Might and Magic III. It rebuilds the strategy game's systems for modern platforms and adds features such as mod support, multiplayer improvements and expanded configuration.",
+  "howItWorks": "The engine reimplements game logic and rendering while loading the original game's data files supplied by the player. It does not bundle the copyrighted Heroes III assets.",
+  "category": "rewrites",
+  "categoryLabel": "Engine Reimplementation",
+  "tone": "matcha",
+  "language": "C++",
+  "license": "GPL-2.0",
+  "githubUrl": "https://github.com/vcmi/vcmi",
+  "homepageUrl": "https://vcmi.eu/",
+  "repoSlug": "vcmi/vcmi",
+  "formats": [
+    ".Flatpak",
+    ".AppImage"
+  ],
+  "primaryFormat": ".Flatpak",
+  "steamDeckFriendly": false,
+  "byocRequirement": "Requires your own Heroes of Might and Magic III game data files. VCMI does not distribute the original assets.",
+  "highlights": [
+    "Modern open-source engine for Heroes of Might and Magic III",
+    "Supports community mods and expansion content",
+    "Includes multiplayer and modern platform improvements",
+    "Official Linux installation documentation covers Flatpak and AppImage"
+  ],
+  "recipes": [
+    {
+      "label": "Flatpak",
+      "format": ".Flatpak",
+      "command": "flatpak install flathub eu.vcmi.VCMI",
+      "note": "The VCMI documentation lists this as the latest public release build for Linux."
+    },
+    {
+      "label": "AppImage",
+      "format": ".AppImage",
+      "command": "chmod +x ./*vcmi*.AppImage\n./*vcmi*.AppImage",
+      "note": "Download a stable or nightly AppImage from the official VCMI releases first."
+    }
+  ],
+  "vibeNote": "A familiar fantasy strategy world, rebuilt for modern Linux.",
+  "emojiMark": "icon:crown",
+  "imageUrl": "https://github.com/vcmi.png?size=512",
+  "imageAlt": "VCMI project organization avatar",
+  "imageFit": "contain"
+}
+```
+
+## ScummVM
+
+```json
+{
+  "id": "scummvm",
+  "name": "ScummVM",
+  "gameTitle": "Classic point-and-click adventures and RPGs",
+  "tagline": "Play hundreds of classic adventures on modern Linux systems.",
+  "description": "ScummVM is an interpreter for a large library of classic graphical adventures and role-playing games. It replaces the original game executables so supported titles can run on systems they were never designed for.",
+  "howItWorks": "ScummVM implements the game engines and file formats used by supported titles. Players add the game's data files to the launcher, then ScummVM runs the title through its own engine implementations.",
+  "category": "runtimes",
+  "categoryLabel": "Game Runtime",
+  "tone": "honey",
+  "language": "C++",
+  "license": "GPL-3.0",
+  "githubUrl": "https://github.com/scummvm/scummvm",
+  "homepageUrl": "https://www.scummvm.org/",
+  "repoSlug": "scummvm/scummvm",
+  "formats": [
+    ".Flatpak",
+    "Native"
+  ],
+  "primaryFormat": ".Flatpak",
+  "steamDeckFriendly": false,
+  "byocRequirement": "Most supported games require their original data files. ScummVM replaces the game executable; it does not provide commercial game assets.",
+  "highlights": [
+    "Supports a large library of classic adventure and RPG titles",
+    "Replaces the original game engine executables",
+    "Offers modern scaling, audio, save and input features",
+    "Runs supported titles across Linux and many other platforms"
+  ],
+  "recipes": [
+    {
+      "label": "Flatpak",
+      "format": ".Flatpak",
+      "command": "flatpak install flathub org.scummvm.ScummVM\nflatpak run org.scummvm.ScummVM",
+      "note": "The Flatpak is sandboxed; copy game data into a folder ScummVM can access, such as Documents."
+    },
+    {
+      "label": "Arch Linux",
+      "format": "Native",
+      "command": "sudo pacman -S scummvm",
+      "note": "This command is for Arch Linux and derivatives. ScummVM is also available in many distribution repositories."
+    }
+  ],
+  "vibeNote": "A little interpreter for a very large library of old adventures.",
+  "emojiMark": "icon:book-open",
+  "imageUrl": "https://github.com/scummvm.png?size=512",
+  "imageAlt": "ScummVM project organization avatar",
+  "imageFit": "contain"
+}
+```
+
+## MangoHud
+
+```json
+{
+  "id": "mangohud",
+  "name": "MangoHud",
+  "gameTitle": "Vulkan and OpenGL games",
+  "tagline": "Overlay FPS, frame timing, temperatures and CPU/GPU statistics while gaming.",
+  "description": "MangoHud is a Vulkan and OpenGL overlay for Linux. It can show frame rate, frame times, CPU and GPU activity, temperatures, memory use and other performance metrics while a game is running.",
+  "howItWorks": "MangoHud hooks into supported Vulkan and OpenGL applications and draws a configurable performance overlay. It can be enabled per game through a launch option or environment variable.",
+  "category": "tools",
+  "categoryLabel": "Performance Overlay",
+  "tone": "chamomile",
+  "language": "C / C++",
+  "license": "MIT",
+  "githubUrl": "https://github.com/flightlessmango/MangoHud",
+  "repoSlug": "flightlessmango/MangoHud",
+  "formats": [
+    ".Flatpak",
+    "Native"
+  ],
+  "primaryFormat": "Native",
+  "steamDeckFriendly": true,
+  "byocRequirement": "Requires a supported Vulkan or OpenGL application and compatible graphics stack. Some 32-bit games need the matching 32-bit package.",
+  "highlights": [
+    "Shows FPS, frame time, GPU/CPU load and temperatures",
+    "Works with Vulkan and OpenGL applications",
+    "Supports per-game configuration and customizable metrics",
+    "Can be enabled from Steam or compatible game launchers"
+  ],
+  "recipes": [
+    {
+      "label": "Arch Linux",
+      "format": "Native",
+      "command": "sudo pacman -S mangohud lib32-mangohud",
+      "note": "Install the 32-bit package as well when you need the overlay for 32-bit games."
+    },
+    {
+      "label": "Flatpak layer",
+      "format": ".Flatpak",
+      "command": "flatpak install flathub org.freedesktop.Platform.VulkanLayer.MangoHud",
+      "note": "For Flatpak Steam, the MangoHud README documents enabling the layer with a Flatpak override."
+    }
+  ],
+  "vibeNote": "A clean little dashboard for seeing what your game is doing.",
+  "emojiMark": "icon:chart-no-axes-combined",
+  "imageUrl": "https://github.com/flightlessmango.png?size=512",
+  "imageAlt": "MangoHud project organization avatar",
+  "imageFit": "contain"
+}
+```
+
+## GameMode
+
+```json
+{
+  "id": "gamemode",
+  "name": "GameMode",
+  "gameTitle": "Linux system performance on demand",
+  "tagline": "Let games request temporary system optimizations while they run.",
+  "description": "GameMode is a daemon and library from Feral Interactive that lets games request performance optimizations on Linux. Depending on configuration and hardware, it can adjust CPU governor settings, process priority, I/O priority, GPU performance modes and more.",
+  "howItWorks": "A game or launcher sends a request to the GameMode daemon. Applications without native integration can be launched through the gamemoderun helper, including through Steam launch options.",
+  "category": "tools",
+  "categoryLabel": "Performance Optimizer",
+  "tone": "matcha",
+  "language": "C",
+  "license": "BSD-3-Clause",
+  "githubUrl": "https://github.com/FeralInteractive/gamemode",
+  "repoSlug": "FeralInteractive/gamemode",
+  "formats": [
+    "Native"
+  ],
+  "primaryFormat": "Native",
+  "steamDeckFriendly": false,
+  "byocRequirement": "Requires Linux with the system services and packages supported by your distribution. The optimizations available depend on hardware and configuration.",
+  "highlights": [
+    "Provides on-demand CPU and process performance tuning",
+    "Can adjust I/O priority and selected GPU performance controls",
+    "Works with games that integrate GameMode or via gamemoderun",
+    "Packages are available for Arch, Debian, Fedora and other distributions"
+  ],
+  "recipes": [
+    {
+      "label": "Arch Linux",
+      "format": "Native",
+      "command": "sudo pacman -S gamemode lib32-gamemode",
+      "note": "The 32-bit library is useful for 32-bit games. For Steam launch options, use: gamemoderun %command%."
+    },
+    {
+      "label": "Launch with GameMode",
+      "format": "Native",
+      "command": "gamemoderun ./your-game",
+      "note": "Use this for games that do not request GameMode automatically. Replace ./your-game with the actual game command."
+    }
+  ],
+  "vibeNote": "An on-demand performance switch, rather than a permanent tweak.",
+  "emojiMark": "icon:gauge",
+  "imageUrl": "https://github.com/FeralInteractive.png?size=512",
+  "imageAlt": "Feral Interactive project organization avatar",
+  "imageFit": "contain"
+}
+```
+
+## LACT
+
+```json
+{
+  "id": "lact",
+  "name": "LACT",
+  "gameTitle": "AMD, Intel and NVIDIA GPU control",
+  "tagline": "Monitor GPU health, tune power limits and manage fan curves on Linux.",
+  "description": "LACT is a Linux GPU configuration and monitoring application. It provides detailed hardware information, historical charts, power and thermal controls, fan curves and overclocking features where supported by the GPU and driver.",
+  "howItWorks": "The desktop app communicates with a system service that applies hardware settings. The service can operate independently of a graphical session, while the Flatpak build can also be used for read-only monitoring without installing the service.",
+  "category": "tools",
+  "categoryLabel": "GPU Monitor & Tuning",
+  "tone": "berry",
+  "language": "Rust",
+  "license": "MIT",
+  "githubUrl": "https://github.com/ilya-zlobintsev/LACT",
+  "repoSlug": "ilya-zlobintsev/LACT",
+  "formats": [
+    ".Flatpak",
+    "Native"
+  ],
+  "primaryFormat": ".Flatpak",
+  "steamDeckFriendly": false,
+  "byocRequirement": "Hardware controls vary by GPU vendor, model and driver. Full configuration requires LACT's system daemon and appropriate privileges; Flatpak-only monitoring can work without the daemon.",
+  "highlights": [
+    "Detailed AMD, Intel and NVIDIA GPU information",
+    "Historical charts for power, temperatures and clocks",
+    "Fan curves, power limits and overclocking on supported hardware",
+    "Profiles can activate automatically for selected processes"
+  ],
+  "recipes": [
+    {
+      "label": "Flatpak",
+      "format": ".Flatpak",
+      "command": "flatpak install flathub io.github.ilya_zlobintsev.LACT",
+      "note": "For full hardware control, follow the upstream Flatpak setup prompt to install and start the system daemon. Read-only monitoring can work without the daemon."
+    },
+    {
+      "label": "Arch Linux",
+      "format": "Native",
+      "command": "sudo pacman -S lact",
+      "note": "The Arch package is available in the official repositories. Follow the upstream documentation for enabling the LACT daemon."
+    }
+  ],
+  "vibeNote": "A thoughtful control panel for the hardware behind your frames.",
+  "emojiMark": "icon:sliders-horizontal",
+  "imageUrl": "https://github.com/ilya-zlobintsev.png?size=512",
+  "imageAlt": "LACT project author avatar",
+  "imageFit": "contain"
+}
+```

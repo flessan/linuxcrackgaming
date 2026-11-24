@@ -1,5 +1,5 @@
 name: Suggest a project
-description: Suggest a Linux game rewrite, native port, launcher, runtime or compatibility tool.
+description: Suggest an open-source Linux game, rewrite, native port, launcher, runtime or compatibility tool.
 title: "[Project submission]: "
 body:
   - type: markdown
@@ -37,6 +37,7 @@ body:
         - Launcher or runtime
         - Native recompilation
         - Compatibility tool
+        - Open-source game
     validations:
       required: true
   - type: dropdown

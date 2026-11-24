@@ -17,7 +17,7 @@ Required fields:
 - `id`: unique, lowercase, URL-safe identifier.
 - `name` and `gameTitle`: display names.
 - `tagline`, `description`, `howItWorks`: factual project information.
-- `category`: one of `rewrites`, `runtimes`, `recomp`, `tools`.
+- `category`: one of `rewrites`, `runtimes`, `recomp`, `tools`, `games`.
 - `categoryLabel`, `tone`, `language`, `license`.
 - `githubUrl`, `repoSlug`, `formats`, `primaryFormat`.
 - `imageUrl` and `imageAlt`: a public HTTPS screenshot or logo.
@@ -48,7 +48,7 @@ The API response shape is:
 ```json
 {
   "version": 1,
-  "count": 16,
+  "count": 26,
   "projects": []
 }
 ```

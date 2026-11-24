@@ -12,6 +12,7 @@ const CATEGORY_ICONS: Record<ProjectCategory, typeof Gamepad2> = {
   runtimes: Gamepad2,
   recomp: Cpu,
   tools: Wrench,
+  games: Gamepad2,
 };
 
 export function ProjectMark({

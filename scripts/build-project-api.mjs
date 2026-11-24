@@ -11,7 +11,7 @@ if (blocks.length === 0) {
   throw new Error('No project JSON blocks found in content/projects.md');
 }
 
-const allowedCategories = new Set(['rewrites', 'runtimes', 'recomp', 'tools']);
+const allowedCategories = new Set(['rewrites', 'runtimes', 'recomp', 'tools', 'games']);
 const seenIds = new Set();
 
 const projects = blocks.map((match, index) => {

@@ -1,4 +1,4 @@
-export type ProjectCategory = 'rewrites' | 'runtimes' | 'recomp' | 'tools';
+export type ProjectCategory = 'rewrites' | 'runtimes' | 'recomp' | 'tools' | 'games';
 export type PackageFormat = '.AppImage' | '.Flatpak' | 'Native';
 export type PastelTone = 'peach' | 'matcha' | 'honey' | 'berry' | 'chamomile';
 

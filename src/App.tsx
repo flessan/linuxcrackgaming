@@ -233,6 +233,7 @@ export function App() {
       runtimes: allProjects.filter((p) => p.category === 'runtimes').length,
       recomp: allProjects.filter((p) => p.category === 'recomp').length,
       tools: allProjects.filter((p) => p.category === 'tools').length,
+      games: allProjects.filter((p) => p.category === 'games').length,
     }),
     [allProjects]
   );
@@ -708,6 +709,7 @@ export function App() {
                     { id: 'runtimes', label: 'Runtimes & Launchers', count: categoryCounts.runtimes },
                     { id: 'recomp', label: 'Native Recomp', count: categoryCounts.recomp },
                     { id: 'tools', label: 'Compatibility Tools', count: categoryCounts.tools },
+                    { id: 'games', label: 'Open-Source Games', count: categoryCounts.games },
                   ] as const
                 ).map((tab) => {
                   const active = categoryFilter === tab.id;
