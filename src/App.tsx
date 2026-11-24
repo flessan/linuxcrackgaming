@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { animate, stagger } from 'animejs';
 import {
   Search,
   Sparkles,
@@ -13,36 +14,37 @@ import {
   Heart,
   Check,
   RotateCcw,
+  Grid2X2,
+  List,
+  Gamepad2,
 } from 'lucide-react';
-import {
-  GameProject,
-  INITIAL_PROJECTS,
-  PackageFormat,
-  ProjectCategory,
-} from './data/projects';
+import type { GameProject, PackageFormat, ProjectCategory } from './data/projects';
+import PROJECT_CATALOGUE from './data/projects.generated.json';
 import { ProjectCard } from './components/ProjectCard';
 import { ProjectDrawer } from './components/ProjectDrawer';
 import { TrayDrawer } from './components/TrayDrawer';
-import { SuggestModal } from './components/SuggestModal';
 import { CopyPill } from './components/CopyPill';
 import { DiscordChat } from './components/DiscordChat';
 
 const STORAGE_TRAY_KEY = 'linuxcrackgaming_tray_v1';
-const STORAGE_CUSTOM_KEY = 'linuxcrackgaming_custom_v1';
 
+type ViewId = 'specials' | 'shelf' | 'pantry-notes';
 type CategoryFilter = 'all' | ProjectCategory;
+
+const VIEW_META: Record<ViewId, { title: string }> = {
+  specials: { title: 'House Specials' },
+  shelf: { title: 'The Shelf' },
+  'pantry-notes': { title: 'Pantry Notes' },
+};
+
+function getViewFromHash(): ViewId {
+  const hash = window.location.hash.slice(1);
+  if (hash === 'shelf' || hash === 'pantry-notes') return hash;
+  return 'specials';
+}
 type FormatFilter = 'all' | PackageFormat;
 
 export function App() {
-  const [customProjects, setCustomProjects] = useState<GameProject[]>(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_CUSTOM_KEY);
-      return raw ? (JSON.parse(raw) as GameProject[]) : [];
-    } catch {
-      return [];
-    }
-  });
-
   const [savedIds, setSavedIds] = useState<string[]>(() => {
     try {
       const raw = localStorage.getItem(STORAGE_TRAY_KEY);
@@ -55,16 +57,19 @@ export function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all');
   const [formatFilter, setFormatFilter] = useState<FormatFilter>('all');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [sortMode, setSortMode] = useState<'recommended' | 'name' | 'category'>('recommended');
   const [selectedProject, setSelectedProject] = useState<GameProject | null>(null);
   const [isTrayOpen, setIsTrayOpen] = useState(false);
-  const [isSuggestOpen, setIsSuggestOpen] = useState(false);
   const [showCrackNote, setShowCrackNote] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-
-  const allProjects = useMemo(
-    () => [...customProjects, ...INITIAL_PROJECTS],
-    [customProjects]
+  const [activeView, setActiveView] = useState<ViewId>(() =>
+    typeof window === 'undefined' ? 'specials' : getViewFromHash()
   );
+  const viewContentRef = useRef<HTMLDivElement | null>(null);
+  const navRef = useRef<HTMLElement | null>(null);
+
+  const allProjects = PROJECT_CATALOGUE.projects as GameProject[];
 
   useEffect(() => {
     try {
@@ -75,12 +80,87 @@ export function App() {
   }, [savedIds]);
 
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_CUSTOM_KEY, JSON.stringify(customProjects));
-    } catch {
-      // ignore storage errors
+    const initialView = getViewFromHash();
+    if (window.location.hash !== `#${initialView}`) {
+      window.history.replaceState({ view: initialView }, '', `#${initialView}`);
     }
-  }, [customProjects]);
+
+    const syncFromLocation = () => {
+      setActiveView(getViewFromHash());
+      window.scrollTo(0, 0);
+    };
+
+    window.addEventListener('popstate', syncFromLocation);
+    window.addEventListener('hashchange', syncFromLocation);
+    return () => {
+      window.removeEventListener('popstate', syncFromLocation);
+      window.removeEventListener('hashchange', syncFromLocation);
+    };
+  }, []);
+
+  useEffect(() => {
+    document.title = `${VIEW_META[activeView].title} | LinuxCrackGaming`;
+
+    const root = viewContentRef.current;
+    if (!root || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const sections = Array.from(root.querySelectorAll<HTMLElement>(':scope > section'));
+    if (sections.length) {
+      animate(sections, {
+        opacity: [0, 1],
+        y: [18, 0],
+        delay: stagger(75),
+        duration: 520,
+        ease: 'outQuart',
+      });
+    }
+
+    const projectItems = Array.from(
+      root.querySelectorAll<HTMLElement>('.catalog-grid > li, .project-list-view > li')
+    );
+    if (projectItems.length) {
+      animate(projectItems, {
+        opacity: [0, 1],
+        y: [14, 0],
+        delay: stagger(28, { start: 90 }),
+        duration: 440,
+        ease: 'outQuart',
+      });
+    }
+  }, [activeView]);
+
+  useEffect(() => {
+    const activeButton = navRef.current?.querySelector<HTMLButtonElement>(
+      `[data-view="${activeView}"]`
+    );
+    const indicator = navRef.current?.querySelector<HTMLElement>('.nav-switcher__indicator');
+    if (!activeButton || !indicator) return;
+
+    const x = activeButton.offsetLeft;
+    const width = activeButton.offsetWidth;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      indicator.style.transform = `translateX(${x}px)`;
+      indicator.style.width = `${width}px`;
+      indicator.style.opacity = '1';
+      return;
+    }
+
+    animate(indicator, {
+      x,
+      width,
+      opacity: 1,
+      duration: 480,
+      ease: 'outBack',
+    });
+  }, [activeView]);
+
+  const navigateTo = (view: ViewId) => {
+    if (view !== activeView) {
+      window.history.pushState({ view }, '', `#${view}`);
+      setActiveView(view);
+    }
+    window.scrollTo(0, 0);
+  };
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -101,12 +181,6 @@ export function App() {
     });
   };
 
-  const handleAddCustomProject = (project: GameProject) => {
-    setCustomProjects((prev) => [project, ...prev]);
-    setSavedIds((prev) => (prev.includes(project.id) ? prev : [project.id, ...prev]));
-    showToast(`Pinned ${project.name} onto the shelf!`);
-  };
-
   const loadStarterPack = () => {
     setSavedIds(['cinnabar', 'sober', 'prism-launcher', 'openrct2']);
     showToast('Loaded the Cozy Starter Pack into your tray!');
@@ -114,7 +188,7 @@ export function App() {
 
   const filteredProjects = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
-    return allProjects.filter((project) => {
+    const results = allProjects.filter((project) => {
       if (categoryFilter !== 'all' && project.category !== categoryFilter) {
         return false;
       }
@@ -136,7 +210,10 @@ export function App() {
         .toLowerCase();
       return haystack.includes(q);
     });
-  }, [allProjects, categoryFilter, formatFilter, searchQuery]);
+    if (sortMode === 'name') results.sort((a, b) => a.name.localeCompare(b.name));
+    if (sortMode === 'category') results.sort((a, b) => a.categoryLabel.localeCompare(b.categoryLabel) || a.name.localeCompare(b.name));
+    return results;
+  }, [allProjects, categoryFilter, formatFilter, searchQuery, sortMode]);
 
   const savedProjects = useMemo(
     () =>
@@ -155,6 +232,8 @@ export function App() {
       rewrites: allProjects.filter((p) => p.category === 'rewrites').length,
       runtimes: allProjects.filter((p) => p.category === 'runtimes').length,
       recomp: allProjects.filter((p) => p.category === 'recomp').length,
+      tools: allProjects.filter((p) => p.category === 'tools').length,
+      games: allProjects.filter((p) => p.category === 'games').length,
     }),
     [allProjects]
   );
@@ -166,14 +245,16 @@ export function App() {
     <div className="cream-ambient-bg min-h-screen text-[#352A24]">
       {/* Soft sticky header */}
       <header className="sticky top-0 z-40 border-b border-[#EFE6D8]/90 bg-[#FBF7F0]/85 backdrop-blur-md">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3.5 sm:px-8">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-5 py-3.5 sm:px-8">
           <a
-            href="#top"
+            href="#specials"
+            onClick={(event) => {
+              event.preventDefault();
+              navigateTo('specials');
+            }}
             className="group inline-flex items-center gap-2.5 focus:outline-none"
           >
-            <span className="flex h-10 w-10 items-center justify-center rounded-2xl border border-[#ECDCC7] bg-[#FFFDF9] text-xl shadow-xs transition-transform duration-300 group-hover:-rotate-6">
-              🍮
-            </span>
+            <span className="flex h-10 w-10 items-center justify-center rounded-2xl border border-[#ECDCC7] bg-[#FFFDF9] text-[#D97757] shadow-xs transition-transform duration-300 group-hover:-rotate-6"><Gamepad2 className="h-5 w-5" aria-hidden="true" /></span>
             <div className="leading-none">
               <span className="font-display block text-[1.15rem] font-semibold tracking-tight text-[#352A24]">
                 Linux<span className="text-[#D97757]">Crack</span>Gaming
@@ -184,36 +265,51 @@ export function App() {
             </div>
           </a>
 
-          <nav className="hidden items-center gap-1 rounded-full border border-[#ECE2D3] bg-[#FFFDF9]/90 p-1 md:flex">
-            <a
-              href="#specials"
-              className="rounded-full px-4 py-1.5 text-sm font-medium text-[#6B5A4E] transition-colors hover:bg-[#F5EDE0] hover:text-[#352A24]"
+          <nav
+            ref={navRef}
+            aria-label="Main navigation"
+            className="nav-switcher order-3 flex w-full items-center justify-center gap-1 rounded-full border border-[#ECE2D3] bg-[#FFFDF9]/90 p-1 md:order-none md:w-auto"
+          >
+            <span className="nav-switcher__indicator" aria-hidden="true" />
+            <button
+              type="button"
+              data-view="specials"
+              aria-current={activeView === 'specials' ? 'page' : undefined}
+              onClick={() => navigateTo('specials')}
+              className={`nav-link nav-switcher__button ${activeView === 'specials' ? 'nav-link--active' : ''}`}
             >
               House Specials
-            </a>
-            <a
-              href="#shelf"
-              className="rounded-full px-4 py-1.5 text-sm font-medium text-[#6B5A4E] transition-colors hover:bg-[#F5EDE0] hover:text-[#352A24]"
+            </button>
+            <button
+              type="button"
+              data-view="shelf"
+              aria-current={activeView === 'shelf' ? 'page' : undefined}
+              onClick={() => navigateTo('shelf')}
+              className={`nav-link nav-switcher__button ${activeView === 'shelf' ? 'nav-link--active' : ''}`}
             >
               The Shelf
-            </a>
-            <a
-              href="#pantry-notes"
-              className="rounded-full px-4 py-1.5 text-sm font-medium text-[#6B5A4E] transition-colors hover:bg-[#F5EDE0] hover:text-[#352A24]"
+            </button>
+            <button
+              type="button"
+              data-view="pantry-notes"
+              aria-current={activeView === 'pantry-notes' ? 'page' : undefined}
+              onClick={() => navigateTo('pantry-notes')}
+              className={`nav-link nav-switcher__button ${activeView === 'pantry-notes' ? 'nav-link--active' : ''}`}
             >
               Pantry Notes
-            </a>
+            </button>
           </nav>
 
           <div className="flex items-center gap-2.5">
-            <button
-              type="button"
-              onClick={() => setIsSuggestOpen(true)}
-              className="hidden items-center gap-1.5 rounded-full border border-[#E6DAC8] bg-[#FFFDF9] px-3.5 py-2 text-xs font-semibold text-[#5C4B40] transition-all hover:border-[#D7C3AA] hover:bg-[#FAF4EB] sm:inline-flex cursor-pointer"
+            <a
+              href="https://github.com/flessan/linuxcrackgaming/issues/new?template=add-project.yml"
+              target="_blank"
+              rel="noreferrer"
+              className="hidden items-center gap-1.5 rounded-full border border-[#E6DAC8] bg-[#FFFDF9] px-3.5 py-2 text-xs font-semibold text-[#5C4B40] transition-all hover:border-[#D7C3AA] hover:bg-[#FAF4EB] sm:inline-flex"
             >
-              <Plus className="h-3.5 w-3.5 text-[#D97757]" />
-              Pin a Repo
-            </button>
+              <Plus className="h-3.5 w-3.5 text-[#D97757]" aria-hidden="true" />
+              Suggest a project
+            </a>
 
             <button
               type="button"
@@ -230,7 +326,14 @@ export function App() {
         </div>
       </header>
 
-      <main id="top">
+      <main id="top" className="app-main">
+        <div
+          ref={viewContentRef}
+          className="view-transition"
+          data-active-view={activeView}
+        >
+          {activeView === 'specials' && (
+            <>
         {/* Hero Section */}
         <section className="mx-auto max-w-6xl px-5 pb-16 pt-10 sm:px-8 sm:pt-14 lg:pb-24">
           <div className="grid items-center gap-10 lg:grid-cols-12 lg:gap-12">
@@ -284,13 +387,14 @@ export function App() {
               </p>
 
               <div className="mt-7 flex flex-wrap items-center gap-3.5">
-                <a
-                  href="#shelf"
+                <button
+                  type="button"
+                  onClick={() => navigateTo('shelf')}
                   className="inline-flex items-center gap-2 rounded-full bg-[#D97757] px-6 py-3.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#C66545] active:scale-[0.98]"
                 >
                   Explore the Shelf
                   <ArrowDown className="h-4 w-4" />
-                </a>
+                </button>
 
                 <button
                   type="button"
@@ -391,18 +495,8 @@ export function App() {
             </div>
           </div>
         </section>
-
-        <main style={{ maxWidth: '1120px', margin: '0 auto' }}>
-      <h2 className="font-display mt-2 text-3xl font-semibold text-[#352A24]" style={{ padding: '14px'}}>
-                Discord Chat!
-              </h2>
-      
-      {/* Your embedded Discord chat */}
-      <DiscordChat />
-    </main>
-
         {/* House Specials: Cinnabar & Sober Spotlight */}
-        <section id="specials" className="mx-auto max-w-6xl px-5 py-10 sm:px-8">
+        <section id="specials" className="deferred-section mx-auto max-w-6xl px-5 py-10 sm:px-8">
           <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
             <div>
               <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FBEBD5] px-3 py-1 text-xs font-semibold text-[#9F6A1E]">
@@ -561,9 +655,13 @@ export function App() {
             </div>
           </div>
         </section>
+            </>
+          )}
 
+          {activeView === 'shelf' && (
+            <>
         {/* Main Interactive Project Shelf */}
-        <section id="shelf" className="mx-auto max-w-6xl px-5 py-14 sm:px-8">
+        <section id="shelf" className="deferred-section mx-auto max-w-6xl px-5 py-14 sm:px-8">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
               <span className="inline-flex items-center gap-1.5 rounded-full bg-[#E9F2E8] px-3 py-1 text-xs font-semibold text-[#477150]">
@@ -575,21 +673,22 @@ export function App() {
               </h2>
             </div>
 
-            <button
-              type="button"
-              onClick={() => setIsSuggestOpen(true)}
-              className="inline-flex items-center gap-2 rounded-full border border-[#E4D6C3] bg-[#FFFDF9] px-4 py-2.5 text-xs font-semibold text-[#5B4A3F] shadow-xs transition-all hover:border-[#D97757] hover:text-[#B55939] cursor-pointer"
+            <a
+              href="https://github.com/flessan/linuxcrackgaming/issues/new?template=add-project.yml"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 rounded-full border border-[#E4D6C3] bg-[#FFFDF9] px-4 py-2.5 text-xs font-semibold text-[#5B4A3F] shadow-xs transition-all hover:border-[#D97757] hover:text-[#B55939]"
             >
-              <Plus className="h-4 w-4 text-[#D97757]" />
-              Add your own GitHub pick
-            </button>
+              <Plus className="h-4 w-4 text-[#D97757]" aria-hidden="true" />
+              Suggest a project on GitHub
+            </a>
           </div>
 
           {/* Warm Filter Bar */}
           <div className="mt-6 rounded-[28px] border border-[#ECE2D3] bg-[#FFFDF9]/90 p-4 sm:p-5 cream-pill-shadow">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               {/* Search input */}
-              <div className="relative flex-1 lg:max-w-sm">
+              <search className="relative flex-1 lg:max-w-sm" aria-label="Search catalogue">
                 <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9B897B]" />
                 <input
                   type="text"
@@ -599,7 +698,7 @@ export function App() {
                   aria-label="Search Linux gaming projects"
                   className="w-full rounded-2xl border border-[#EAE0D0] bg-[#FBF7F0] py-2.5 pl-10 pr-4 text-sm text-[#352A24] placeholder:text-[#A49284] focus:border-[#D97757] focus:outline-none"
                 />
-              </div>
+              </search>
 
               {/* Category pills */}
               <div className="flex flex-wrap items-center gap-2">
@@ -609,6 +708,8 @@ export function App() {
                     { id: 'rewrites', label: 'Engine Rewrites', count: categoryCounts.rewrites },
                     { id: 'runtimes', label: 'Runtimes & Launchers', count: categoryCounts.runtimes },
                     { id: 'recomp', label: 'Native Recomp', count: categoryCounts.recomp },
+                    { id: 'tools', label: 'Compatibility Tools', count: categoryCounts.tools },
+                    { id: 'games', label: 'Open-Source Games', count: categoryCounts.games },
                   ] as const
                 ).map((tab) => {
                   const active = categoryFilter === tab.id;
@@ -660,6 +761,16 @@ export function App() {
                 })}
               </div>
 
+              <div className="flex flex-wrap items-center gap-2">
+                <label className="text-xs font-medium text-[#8C796C]" htmlFor="catalog-sort">Sort by</label>
+                <select id="catalog-sort" value={sortMode} onChange={(event) => setSortMode(event.target.value as 'recommended' | 'name' | 'category')} className="rounded-xl border border-[#EAE0D0] bg-[#FFFDF9] px-3 py-2 text-xs font-semibold text-[#5C4B40]">
+                  <option value="recommended">Recommended</option><option value="name">Name</option><option value="category">Category</option>
+                </select>
+                <div className="view-toggle" role="group" aria-label="Catalogue view">
+                  <button type="button" onClick={() => setViewMode('grid')} aria-label="Grid view" aria-pressed={viewMode === 'grid'}><Grid2X2 className="h-4 w-4" /></button>
+                  <button type="button" onClick={() => setViewMode('list')} aria-label="List view" aria-pressed={viewMode === 'list'}><List className="h-4 w-4" /></button>
+                </div>
+              </div>
               {hasActiveFilters && (
                 <button
                   type="button"
@@ -680,13 +791,12 @@ export function App() {
           {/* Grid of Project Cards */}
           {filteredProjects.length === 0 ? (
             <div className="mt-8 rounded-[32px] border border-dashed border-[#DFD2BE] bg-[#FFFDF9] p-12 text-center">
-              <div className="text-4xl">🍪</div>
+              <div className="text-3xl text-[#A27A62]"><Search className="mx-auto h-8 w-8" aria-hidden="true" /></div>
               <h3 className="font-display mt-3 text-xl font-semibold text-[#352A24]">
                 No crumbs matched that search
               </h3>
               <p className="mx-auto mt-1.5 max-w-md text-sm text-[#7B695D]">
-                Try clearing a filter-or if you know a cool GitHub Linux port we haven’t
-                stocked yet, you can pin it right onto your shelf!
+                Try clearing a filter, or submit a GitHub issue if a project is missing from the catalogue.
               </p>
               <div className="mt-5 flex flex-wrap justify-center gap-3">
                 <button
@@ -700,32 +810,50 @@ export function App() {
                 >
                   Show All Projects
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setIsSuggestOpen(true)}
-                  className="rounded-full border border-[#E4D6C3] bg-[#FAF4EB] px-5 py-2.5 text-xs font-semibold text-[#5B4A3F] cursor-pointer"
+                <a
+                  href="https://github.com/flessan/linuxcrackgaming/issues/new?template=add-project.yml"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="rounded-full border border-[#E4D6C3] bg-[#FAF4EB] px-5 py-2.5 text-xs font-semibold text-[#5B4A3F]"
                 >
-                  Pin a GitHub Repo
-                </button>
+                  Suggest a project
+                </a>
               </div>
             </div>
           ) : (
-            <div className="mt-7 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <ul className={`mt-7 ${viewMode === 'grid' ? 'catalog-grid grid gap-6 sm:grid-cols-2 lg:grid-cols-3' : 'project-list-view'}`} role="list">
               {filteredProjects.map((project) => (
-                <ProjectCard
-                  key={project.id}
-                  project={project}
-                  isSaved={savedIds.includes(project.id)}
-                  onToggleSave={toggleSave}
-                  onSelect={(p) => setSelectedProject(p)}
-                />
+                <li key={project.id}>
+                  <ProjectCard
+                    project={project}
+                    isSaved={savedIds.includes(project.id)}
+                    onToggleSave={toggleSave}
+                    onSelect={(p) => setSelectedProject(p)}
+                    layout={viewMode}
+                  />
+                </li>
               ))}
-            </div>
+            </ul>
           )}
         </section>
+            </>
+          )}
 
+          {activeView === 'pantry-notes' && (
+            <>
+        <section id="community-chat" className="mx-auto max-w-6xl px-5 py-10 sm:px-8" aria-labelledby="community-chat-title">
+          <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <span className="section-kicker">Community</span>
+              <h2 id="community-chat-title" className="font-display mt-2 text-2xl font-semibold text-[#352A24]">Talk with other Linux gamers</h2>
+              <p className="mt-1 text-sm text-[#78665A]">The community chat is available right here on the page.</p>
+            </div>
+            <a href="https://discord.gg/nZAMJ7BD" target="_blank" rel="noreferrer" className="text-sm font-semibold text-[#A95032] hover:underline">Open in Discord</a>
+          </div>
+          <div className="community-chat"><DiscordChat /></div>
+        </section>
         {/* Cozy Pantry Notes + Crème Brûlée Illustration */}
-        <section id="pantry-notes" className="mx-auto max-w-6xl px-5 py-12 sm:px-8 lg:py-20">
+        <section id="pantry-notes" className="deferred-section mx-auto max-w-6xl px-5 py-12 sm:px-8 lg:py-20">
           <div className="rounded-[40px] border border-[#ECE2D3] bg-[#FFFDF9] p-6 shadow-[0_16px_42px_-20px_rgba(122,91,63,0.12)] sm:p-10 lg:p-12">
             <div className="grid items-center gap-10 lg:grid-cols-12">
               <div className="lg:col-span-5">
@@ -807,6 +935,9 @@ export function App() {
             </div>
           </div>
         </section>
+            </>
+          )}
+        </div>
       </main>
 
       {/* Cozy Footer */}
@@ -841,13 +972,22 @@ export function App() {
             >
               Sober (VinegarHQ)
             </a>
-            <button
-              type="button"
-              onClick={() => setIsSuggestOpen(true)}
-              className="rounded-full border border-[#E6DAC8] bg-[#FFFDF9] px-3.5 py-1.5 transition-colors hover:text-[#B55939] cursor-pointer"
+            <a
+              href="https://github.com/flessan/linuxcrackgaming/issues/new?template=add-project.yml"
+              target="_blank"
+              rel="noreferrer"
+              className="rounded-full border border-[#E6DAC8] bg-[#FFFDF9] px-3.5 py-1.5 transition-colors hover:text-[#B55939]"
             >
-              Pin a Repo
-            </button>
+              Suggest a project
+            </a>
+            <a
+              href="https://github.com/flessan/linuxcrackgaming/issues/new?template=update-project.yml"
+              target="_blank"
+              rel="noreferrer"
+              className="rounded-full border border-[#E6DAC8] bg-[#FFFDF9] px-3.5 py-1.5 transition-colors hover:text-[#45704E]"
+            >
+              Report a correction
+            </a>
           </div>
         </div>
       </footer>
@@ -871,12 +1011,6 @@ export function App() {
         }}
         onLoadStarterPack={loadStarterPack}
         onSelectProject={(project) => setSelectedProject(project)}
-      />
-
-      <SuggestModal
-        isOpen={isSuggestOpen}
-        onClose={() => setIsSuggestOpen(false)}
-        onAddProject={handleAddCustomProject}
       />
 
       {/* Soft playful toast */}

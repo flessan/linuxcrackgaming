@@ -1,7 +1,8 @@
-import React, { useEffect } from 'react';
-import { X, Trash2, Sparkles, UtensilsCrossed, ExternalLink } from 'lucide-react';
-import { GameProject, TONE_STYLES } from '../data/projects';
+import { ExternalLink, Sparkles, Trash2, UtensilsCrossed, Bookmark, X } from 'lucide-react';
+import type { GameProject } from '../data/projects';
 import { CopyPill } from './CopyPill';
+import { ModalShell } from './ModalShell';
+import { ProjectMark } from './ProjectMark';
 
 interface TrayDrawerProps {
   isOpen: boolean;
@@ -13,7 +14,7 @@ interface TrayDrawerProps {
   onSelectProject: (project: GameProject) => void;
 }
 
-export const TrayDrawer: React.FC<TrayDrawerProps> = ({
+export function TrayDrawer({
   isOpen,
   savedProjects,
   onClose,
@@ -21,173 +22,119 @@ export const TrayDrawer: React.FC<TrayDrawerProps> = ({
   onClearAll,
   onLoadStarterPack,
   onSelectProject,
-}) => {
-  useEffect(() => {
-    if (!isOpen) return;
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [isOpen, onClose]);
-
-  if (!isOpen) return null;
-
+}: TrayDrawerProps) {
   const combinedScript = savedProjects
-    .map((p) => {
-      const firstRecipe = p.recipes[0];
-      return `# --- ${p.name} (${p.gameTitle}) ---\n# Source: ${p.githubUrl}\n${firstRecipe?.command ?? ''}`;
+    .map((project) => {
+      const firstRecipe = project.recipes[0];
+      return `# --- ${project.name} (${project.gameTitle}) ---\n# Source: ${project.githubUrl}\n${firstRecipe?.command ?? ''}`;
     })
     .join('\n\n');
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex justify-end bg-[#352A24]/25 backdrop-blur-[3px]"
-      onClick={onClose}
-      role="dialog"
-      aria-modal="true"
-      aria-label="My Linux Gaming Tray"
-    >
-      <div
-        className="flex h-full w-full max-w-lg flex-col overflow-y-auto border-l border-[#EAE0D0] bg-[#FFFDF9] p-6 shadow-2xl sm:p-8"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-start justify-between gap-4">
+    <ModalShell isOpen={isOpen} onClose={onClose} label="Saved Linux gaming projects" variant="drawer">
+      <div className="dialog-panel dialog-panel--drawer">
+        <header className="flex items-start justify-between gap-4">
           <div>
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FBEBD5] px-3 py-0.5 text-xs font-semibold text-[#9F6B20]">
-              <UtensilsCrossed className="h-3.5 w-3.5" />
-              Personal Tasting Tray
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FBEBD5] px-3 py-1 text-xs font-semibold text-[#9F6B20]">
+              <UtensilsCrossed className="h-3.5 w-3.5" aria-hidden="true" />
+              Your collection
             </span>
-            <h2 className="font-display mt-1.5 text-2xl font-semibold text-[#352A24]">
-              My Linux Game Tray
-            </h2>
-            <p className="mt-1 text-sm text-[#7A685B]">
-              Bookmark projects from the shelf to build a tidy one-copy setup list.
+            <h2 className="font-display mt-2 text-2xl font-semibold text-[#352A24]">Saved projects</h2>
+            <p className="mt-1 max-w-sm text-sm text-[#7A685B]">
+              Keep a shortlist of projects and copy their setup notes from one place.
             </p>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close tray"
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-[#EAE0D0] bg-[#FBF6EE] text-[#6D5B4F] hover:bg-[#F2E9DB] cursor-pointer"
-          >
-            <X className="h-5 w-5" />
+          <button type="button" onClick={onClose} aria-label="Close saved projects" className="icon-action">
+            <X className="h-5 w-5" aria-hidden="true" />
           </button>
-        </div>
+        </header>
 
         {savedProjects.length === 0 ? (
           <div className="mt-10 flex flex-1 flex-col items-center justify-center rounded-3xl border border-dashed border-[#DFD2BE] bg-[#FBF7F0] p-8 text-center">
-            <div className="text-4xl">🧁</div>
-            <h3 className="font-display mt-3 text-lg font-semibold text-[#352A24]">
-              Your tray is empty!
-            </h3>
-            <p className="mt-1.5 max-w-xs text-sm text-[#78665A]">
-              Tap the little bookmark icon on any project card, or try our cozy starter trio.
+            <span className="flex h-14 w-14 items-center justify-center rounded-2xl border border-[#EAE0D0] bg-[#FFFDF9] text-[#A27A62]">
+              <Bookmark className="h-6 w-6" aria-hidden="true" />
+            </span>
+            <h3 className="font-display mt-4 text-lg font-semibold text-[#352A24]">Nothing saved yet</h3>
+            <p className="mt-2 max-w-xs text-sm text-[#78665A]">
+              Save a project from the catalogue to build your own Linux gaming shortlist.
             </p>
             <button
               type="button"
               onClick={onLoadStarterPack}
-              className="mt-5 inline-flex items-center gap-2 rounded-2xl bg-[#D97757] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#C66545] active:scale-95 cursor-pointer"
+              className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-2xl bg-[#D97757] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#C66545]"
             >
-              <Sparkles className="h-4 w-4" />
-              Load Cozy Starter Pack
+              <Sparkles className="h-4 w-4" aria-hidden="true" />
+              Load starter pack
             </button>
           </div>
         ) : (
           <div className="mt-6 flex flex-1 flex-col gap-5">
-            <div className="flex items-center justify-between text-xs font-medium text-[#806E61]">
-              <span>
-                {savedProjects.length} {savedProjects.length === 1 ? 'treat' : 'treats'} saved
-              </span>
+            <div className="flex items-center justify-between gap-3 text-xs font-medium text-[#806E61]">
+              <span>{savedProjects.length} saved {savedProjects.length === 1 ? 'project' : 'projects'}</span>
               <button
                 type="button"
                 onClick={onClearAll}
-                className="text-[#B55939] underline-offset-2 hover:underline cursor-pointer"
+                className="min-h-8 rounded-lg px-2 text-[#B55939] underline-offset-2 hover:underline"
               >
-                Clear tray
+                Clear all
               </button>
             </div>
 
-            <div className="space-y-2.5">
-              {savedProjects.map((project) => {
-                const tone = TONE_STYLES[project.tone];
-                return (
-                  <div
-                    key={project.id}
-                    className="flex items-center justify-between gap-3 rounded-2xl border border-[#ECE2D3] bg-[#FBF7F0] p-3.5"
+            <ul className="space-y-2.5">
+              {savedProjects.map((project) => (
+                <li key={project.id} className="flex items-center justify-between gap-3 rounded-2xl border border-[#ECE2D3] bg-[#FBF7F0] p-3.5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onClose();
+                      onSelectProject(project);
+                    }}
+                    className="flex min-w-0 flex-1 items-center gap-3 text-left"
                   >
+                    <ProjectMark project={project} className="project-mark project-mark--tray" iconClassName="h-5 w-5" />
+                    <span className="min-w-0">
+                      <span className="block truncate font-display text-sm font-semibold text-[#352A24]">
+                        {project.name}
+                      </span>
+                      <span className="mt-0.5 block truncate text-xs text-[#7D6B5F]">
+                        {project.categoryLabel} · {project.gameTitle}
+                      </span>
+                    </span>
+                  </button>
+
+                  <div className="flex shrink-0 items-center gap-1.5">
+                    <a
+                      href={project.githubUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label={`Open ${project.name} repository`}
+                      className="icon-action icon-action--small"
+                    >
+                      <ExternalLink className="h-4 w-4" aria-hidden="true" />
+                    </a>
                     <button
                       type="button"
-                      onClick={() => {
-                        onClose();
-                        onSelectProject(project);
-                      }}
-                      className="flex min-w-0 flex-1 items-center gap-3 text-left cursor-pointer"
+                      onClick={() => onRemove(project.id)}
+                      aria-label={`Remove ${project.name}`}
+                      className="icon-action icon-action--small"
                     >
-                      <div
-                        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border text-lg ${tone.bg} ${tone.border}`}
-                      >
-                        {project.emojiMark.startsWith('http') ? (
-  <img
-    src={project.emojiMark}
-    alt={project.name}
-    className="h-full w-full rounded-xl object-cover"
-  />
-) : (
-  project.emojiMark
-)}
-
-                      </div>
-                      <div className="min-w-0">
-                        <div className="truncate font-display text-sm font-semibold text-[#352A24]">
-                          {project.name}
-                        </div>
-                        <div className="truncate text-xs text-[#7D6B5F]">
-                          {project.primaryFormat} · {project.gameTitle}
-                        </div>
-                      </div>
+                      <Trash2 className="h-4 w-4" aria-hidden="true" />
                     </button>
-
-                    <div className="flex items-center gap-1.5">
-                      <a
-                        href={project.githubUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        aria-label={`Open ${project.name} on GitHub`}
-                        className="flex h-8 w-8 items-center justify-center rounded-xl text-[#7D6B5F] hover:bg-[#EFE6D8] hover:text-[#352A24]"
-                      >
-                        <ExternalLink className="h-3.5 w-3.5" />
-                      </a>
-                      <button
-                        type="button"
-                        onClick={() => onRemove(project.id)}
-                        aria-label={`Remove ${project.name}`}
-                        className="flex h-8 w-8 items-center justify-center rounded-xl text-[#9C7667] hover:bg-[#FAE9E2] hover:text-[#B55939] cursor-pointer"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
                   </div>
-                );
-              })}
-            </div>
+                </li>
+              ))}
+            </ul>
 
-            {/* Combined setup recipe */}
-            <div className="mt-auto pt-4">
-              <h3 className="font-display mb-2 text-sm font-semibold text-[#352A24]">
-                Your Combined Setup Snippet
-              </h3>
-              <CopyPill
-                command={combinedScript}
-                label="linux-crack-gaming-tray.sh"
-              />
-              <p className="mt-2 text-xs text-[#867366]">
-                Saved right in your browser so you can come back to it after a fresh distro hop.
+            <section className="mt-auto border-t border-[#EFE6D9] pt-5">
+              <h3 className="font-display mb-3 text-sm font-semibold text-[#352A24]">Combined setup notes</h3>
+              <CopyPill command={combinedScript} label="linux-gaming-shortlist.sh" />
+              <p className="mt-2 text-xs leading-relaxed text-[#867366]">
+                This combines the first setup recipe for each saved project. Review the notes before running commands.
               </p>
-            </div>
+            </section>
           </div>
         )}
       </div>
-    </div>
+    </ModalShell>
   );
-};
+}

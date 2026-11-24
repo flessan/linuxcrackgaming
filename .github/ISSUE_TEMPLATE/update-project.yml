@@ -1,0 +1,46 @@
+name: Update a catalogue entry
+description: Report outdated information, broken links, missing screenshots or corrections for an existing project.
+title: "[Catalogue update]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for corrections to an existing entry. For a completely new project, use the "Suggest a project" issue form.
+  - type: input
+    id: project
+    attributes:
+      label: Project name or catalogue ID
+      placeholder: Heroic Games Launcher or heroic-games-launcher
+    validations:
+      required: true
+  - type: dropdown
+    id: update-type
+    attributes:
+      label: What needs to change?
+      multiple: true
+      options:
+        - Project description or category
+        - GitHub repository or official website link
+        - Installation commands or package formats
+        - Project screenshot or logo
+        - Compatibility or Steam Deck information
+        - Project is archived or no longer maintained
+        - Other correction
+    validations:
+      required: true
+  - type: textarea
+    id: proposed-change
+    attributes:
+      label: Suggested correction
+      description: Describe the current problem and the exact replacement information.
+      placeholder: The current entry says..., it should say...
+    validations:
+      required: true
+  - type: textarea
+    id: sources
+    attributes:
+      label: Supporting sources
+      description: Add upstream documentation, release notes or other sources that verify the correction.
+      placeholder: https://...
+    validations:
+      required: true

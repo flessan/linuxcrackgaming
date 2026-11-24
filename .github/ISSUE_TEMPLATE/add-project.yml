@@ -1,0 +1,89 @@
+name: Suggest a project
+description: Suggest an open-source Linux game, rewrite, native port, launcher, runtime or compatibility tool.
+title: "[Project submission]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping expand the catalogue. Please suggest genuine projects with a public source repository. A maintainer will review the details before adding the entry to the Markdown catalogue.
+  - type: input
+    id: project-name
+    attributes:
+      label: Project name
+      placeholder: Example: Heroic Games Launcher
+    validations:
+      required: true
+  - type: input
+    id: game-title
+    attributes:
+      label: Game or software
+      placeholder: Example: GOG, Epic Games and Amazon Games
+    validations:
+      required: true
+  - type: input
+    id: repository-url
+    attributes:
+      label: GitHub repository URL
+      placeholder: https://github.com/owner/repository
+      description: Use the official upstream repository, not a fork unless the fork itself is the subject of the submission.
+    validations:
+      required: true
+  - type: dropdown
+    id: category
+    attributes:
+      label: Catalogue category
+      options:
+        - Engine rewrite
+        - Launcher or runtime
+        - Native recompilation
+        - Compatibility tool
+        - Open-source game
+    validations:
+      required: true
+  - type: dropdown
+    id: package-formats
+    attributes:
+      label: Available Linux package formats
+      multiple: true
+      options:
+        - Flatpak
+        - AppImage
+        - Native distribution package
+        - Source build only
+        - Not sure
+    validations:
+      required: true
+  - type: input
+    id: website
+    attributes:
+      label: Official website
+      placeholder: https://example.org
+  - type: input
+    id: image-url
+    attributes:
+      label: Project screenshot or logo URL
+      description: Paste a direct HTTPS image URL. You can also attach or paste an image in the issue after creating it.
+      placeholder: https://example.org/images/project-screenshot.png
+  - type: input
+    id: license
+    attributes:
+      label: License
+      placeholder: GPL-3.0, MIT, proprietary, or not sure
+  - type: textarea
+    id: summary
+    attributes:
+      label: What does this project do?
+      description: Explain what it runs, how it works on Linux, and why it belongs in the catalogue.
+      placeholder: A short, factual summary...
+    validations:
+      required: true
+  - type: textarea
+    id: sources
+    attributes:
+      label: Supporting sources
+      description: Link to documentation, installation instructions, release downloads or screenshots that confirm the details above.
+      placeholder: |
+        - https://...
+        - https://...
+    validations:
+      required: true

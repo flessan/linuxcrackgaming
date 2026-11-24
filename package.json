@@ -4,12 +4,16 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "generate:catalogue": "node scripts/build-project-api.mjs",
+    "predev": "npm run generate:catalogue",
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "prebuild": "npm run generate:catalogue"
   },
   "dependencies": {
     "@widgetbot/react-embed": "^1.11.3",
+    "animejs": "^4.5.0",
     "clsx": "2.1.1",
     "lucide-react": "^1.77.0",
     "react": "19.2.6",
