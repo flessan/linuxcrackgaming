@@ -15,9 +15,9 @@ Browse the [web catalogue](https://linuxcrackgaming.pages.dev) for searchable ca
 
 The table below is the source of truth for the catalogue index. Add one row for a new project in a pull request. The build checks the table, validates links and package formats, then generates the website data and `/api/projects.json`.
 
+<!-- lcg:catalog:start -->
 | Project | Game / software | Category | Overview | Linux formats | Install | Requirements / Steam Deck | Technology / license | Links |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-<!-- lcg:catalog:start -->
 | **Cinnabar** | Minecraft: Bedrock Edition | Engine rewrite | A silky-fast Rust rewrite of Bedrock with Java-style touches & WASM mods. | .AppImage, Native | See expanded install options below. | Requires your own Microsoft account owning Minecraft; downloads public vanilla assets after EULA.<br>**Steam Deck:** Yes | Rust & Go · Source-Available | [GitHub](https://github.com/cinnabar-mc/cinnabar) · [Preview](https://avatars.githubusercontent.com/u/344119591?s=200&v=4) |
 | **Sober** | Roblox Player | Runtime / launcher | Play Roblox smoothly on Linux via Flatpak-no Wine, no dual-booting. | .Flatpak | See expanded install options below. | Free Roblox account; Sober fetches the official Roblox package on first launch.<br>**Steam Deck:** Yes | C++ / Flatpak Runtime · Freeware / VinegarHQ | [GitHub](https://github.com/vinegarhq/sober) · [Website](https://sober.vinegarhq.org/) · [Preview](https://sober.vinegarhq.org/img/icon/sober.svg) |
 | Soberix | Roblox (Sober Companion) | Runtime / launcher | The friendly open-source Bloxstrap-style manager built for Sober. | .AppImage, Native | See expanded install options below. | Requires the Sober Flatpak (org.vinegarhq.Sober) installed first.<br>**Steam Deck:** Yes | Python & GTK4 · MIT | [GitHub](https://github.com/JADRT22/soberix) · [Preview](https://github.com/JADRT22.png?size=512) |
