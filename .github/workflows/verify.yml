@@ -28,6 +28,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Generate and validate catalogue JSON
+        run: npm run generate:catalogue
+
       - name: Check TypeScript
         run: npx tsc --noEmit
 
