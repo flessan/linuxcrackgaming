@@ -42,6 +42,9 @@ jobs:
       - name: Check issue submission automation syntax
         run: node --check scripts/issue-to-readme-row.mjs
 
+      - name: Check issue submission script syntax
+        run: node --check scripts/issue-to-readme-row.mjs
+
       - name: Check TypeScript
         run: npx tsc --noEmit
 
