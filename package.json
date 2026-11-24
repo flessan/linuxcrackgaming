@@ -4,9 +4,12 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "generate:catalogue": "node scripts/build-project-api.mjs",
+    "predev": "npm run generate:catalogue",
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "prebuild": "npm run generate:catalogue"
   },
   "dependencies": {
     "@widgetbot/react-embed": "^1.11.3",
