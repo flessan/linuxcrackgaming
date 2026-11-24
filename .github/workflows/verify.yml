@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
     inputs:
       checkout_ref:
-        description: Branch or commit to validate (used by the approved-issue workflow)
+        description: Branch or commit to validate (used by the issue-to-PR workflow)
         required: true
         type: string
 
@@ -38,6 +38,9 @@ jobs:
 
       - name: Generate and validate catalogue JSON from README
         run: npm run generate:catalogue
+
+      - name: Check issue submission automation syntax
+        run: node --check scripts/issue-to-readme-row.mjs
 
       - name: Check TypeScript
         run: npx tsc --noEmit

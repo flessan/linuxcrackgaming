@@ -62,6 +62,7 @@ const image=checkedHttps(cleanValue(answer('Project screenshot or logo URL',fals
 const sources=cleanValue(answer('Supporting sources'));
 const sourceUrls=[...sources.matchAll(/https:\/\/[^\s)]+/g)].map(match=>match[0].replace(/[.,;]+$/,''));
 if (!sourceUrls.length) throw new Error('Add at least one HTTPS URL in Supporting sources.');
+if (/http:\/\//i.test(sources)) throw new Error('Supporting source links must use HTTPS, not HTTP.');
 for (const value of sourceUrls) {
   let parsed;
   try { parsed = new URL(value); } catch { throw new Error('Invalid supporting source URL: '+value); }

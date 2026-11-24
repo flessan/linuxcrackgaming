@@ -24,7 +24,7 @@ Valid Linux formats are `.AppImage`, `.Flatpak` and `Native`. Only list formats 
 
 ## Suggest a project through Issues
 
-Use the [Suggest a project form](https://github.com/flessan/linuxcrackgaming/issues/new?template=add-project.yml). A maintainer reviews the repository, package details and supporting sources first.
+Use the [Suggest a project form](https://github.com/flessan/linuxcrackgaming/issues/new?template=add-project.yml). The form collects the project details and installation information needed by the automation.
 
 When a user opens a project-submission issue, the `Catalogue issue to PR` workflow automatically:
 

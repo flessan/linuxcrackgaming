@@ -19,7 +19,7 @@ permissions:
 
 jobs:
   create-catalogue-pr:
-    if: "!github.event.issue.pull_request && startsWith(github.event.issue.title, '[Project submission]')"
+    if: ${{ !github.event.issue.pull_request && startsWith(github.event.issue.title, '[Project submission]') }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out main
@@ -56,6 +56,8 @@ jobs:
             - Runs the README-to-JSON generator, TypeScript check and production build.
 
             **Maintainer review is still required.** Please verify the upstream repository, package formats, install commands, licence and game-data requirements before merging.
+
+            Closes #${{ github.event.issue.number }}
 
           draft: true
 
