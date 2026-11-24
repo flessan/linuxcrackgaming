@@ -618,6 +618,55 @@
   background: var(--cream-surface);
 }
 
+.project-card__media {
+  position: relative;
+  display: grid;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  place-items: center;
+  overflow: hidden;
+  margin: 0 0 1rem;
+  border: 1px solid #eee3d4;
+  border-radius: 1.15rem;
+  background: #f8f1e7;
+}
+
+.project-card__media-fallback {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #a27a62;
+}
+
+.project-card__image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 1.1rem;
+  object-fit: contain;
+}
+
+.project-card__image--cover {
+  padding: 0;
+  object-fit: cover;
+}
+
+.project-card__featured {
+  position: absolute;
+  inset-block-start: 0.65rem;
+  inset-inline-start: 0.65rem;
+  z-index: 1;
+  border: 1px solid rgb(255 255 255 / 75%);
+  border-radius: 999px;
+  padding: 0.3rem 0.65rem;
+  background: rgb(255 253 249 / 94%);
+  color: #95641e;
+  font-size: 0.62rem;
+  font-weight: 800;
+}
+
 .project-card__main {
   display: flex;
   min-width: 0;
@@ -773,11 +822,17 @@
 
 .project-card--list {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: 8rem minmax(0, 1fr) auto;
   align-items: center;
   gap: 1rem;
   border-radius: 1.25rem;
   padding: 0.9rem 1.1rem;
+}
+
+ .project-card--list .project-card__media {
+  width: 8rem;
+  aspect-ratio: 1;
+  margin: 0;
 }
 
 .project-card--list .project-card__main {
@@ -1012,8 +1067,20 @@
   background: #fffdf9;
 }
 
-.community-chat iframe {
+ .community-chat__embed {
+  height: clamp(32rem, 72svh, 48rem);
+  min-height: 32rem;
+  overflow: hidden;
+  border-radius: 1.4rem;
+  background: #f4ece0;
+}
+
+.community-chat__embed iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
   max-width: 100%;
+  border: 0;
 }
 
 .site-footer {
@@ -1089,7 +1156,16 @@
   }
 
   .project-card--list {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: 5.5rem minmax(0, 1fr);
+  }
+
+  .project-card--list .project-card__media {
+    width: 5.5rem;
+    aspect-ratio: 1;
+  }
+
+  .project-card--list .project-card__footer {
+    grid-column: 1 / -1;
   }
 
   .project-card--list .project-card__footer {
@@ -1110,6 +1186,11 @@
   .pantry-illustration {
     max-width: 24rem;
     margin-inline: auto;
+  }
+
+  .community-chat__embed {
+    height: min(72svh, 38rem);
+    min-height: 30rem;
   }
 
   .dialog-shell--drawer {
