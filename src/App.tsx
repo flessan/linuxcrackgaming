@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { animate, stagger } from 'animejs';
 import {
   Search,
   Sparkles,
@@ -27,7 +28,20 @@ import { DiscordChat } from './components/DiscordChat';
 
 const STORAGE_TRAY_KEY = 'linuxcrackgaming_tray_v1';
 
+type ViewId = 'specials' | 'shelf' | 'pantry-notes';
 type CategoryFilter = 'all' | ProjectCategory;
+
+const VIEW_META: Record<ViewId, { title: string }> = {
+  specials: { title: 'House Specials' },
+  shelf: { title: 'The Shelf' },
+  'pantry-notes': { title: 'Pantry Notes' },
+};
+
+function getViewFromHash(): ViewId {
+  const hash = window.location.hash.slice(1);
+  if (hash === 'shelf' || hash === 'pantry-notes') return hash;
+  return 'specials';
+}
 type FormatFilter = 'all' | PackageFormat;
 
 export function App() {
@@ -49,6 +63,11 @@ export function App() {
   const [isTrayOpen, setIsTrayOpen] = useState(false);
   const [showCrackNote, setShowCrackNote] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [activeView, setActiveView] = useState<ViewId>(() =>
+    typeof window === 'undefined' ? 'specials' : getViewFromHash()
+  );
+  const viewContentRef = useRef<HTMLDivElement | null>(null);
+  const navRef = useRef<HTMLElement | null>(null);
 
   const allProjects = PROJECT_CATALOGUE.projects as GameProject[];
 
@@ -59,6 +78,89 @@ export function App() {
       // ignore storage errors
     }
   }, [savedIds]);
+
+  useEffect(() => {
+    const initialView = getViewFromHash();
+    if (window.location.hash !== `#${initialView}`) {
+      window.history.replaceState({ view: initialView }, '', `#${initialView}`);
+    }
+
+    const syncFromLocation = () => {
+      setActiveView(getViewFromHash());
+      window.scrollTo(0, 0);
+    };
+
+    window.addEventListener('popstate', syncFromLocation);
+    window.addEventListener('hashchange', syncFromLocation);
+    return () => {
+      window.removeEventListener('popstate', syncFromLocation);
+      window.removeEventListener('hashchange', syncFromLocation);
+    };
+  }, []);
+
+  useEffect(() => {
+    document.title = `${VIEW_META[activeView].title} | LinuxCrackGaming`;
+
+    const root = viewContentRef.current;
+    if (!root || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const sections = Array.from(root.querySelectorAll<HTMLElement>(':scope > section'));
+    if (sections.length) {
+      animate(sections, {
+        opacity: [0, 1],
+        y: [18, 0],
+        delay: stagger(75),
+        duration: 520,
+        ease: 'outQuart',
+      });
+    }
+
+    const projectItems = Array.from(
+      root.querySelectorAll<HTMLElement>('.catalog-grid > li, .project-list-view > li')
+    );
+    if (projectItems.length) {
+      animate(projectItems, {
+        opacity: [0, 1],
+        y: [14, 0],
+        delay: stagger(28, { start: 90 }),
+        duration: 440,
+        ease: 'outQuart',
+      });
+    }
+  }, [activeView]);
+
+  useEffect(() => {
+    const activeButton = navRef.current?.querySelector<HTMLButtonElement>(
+      `[data-view="${activeView}"]`
+    );
+    const indicator = navRef.current?.querySelector<HTMLElement>('.nav-switcher__indicator');
+    if (!activeButton || !indicator) return;
+
+    const x = activeButton.offsetLeft;
+    const width = activeButton.offsetWidth;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      indicator.style.transform = `translateX(${x}px)`;
+      indicator.style.width = `${width}px`;
+      indicator.style.opacity = '1';
+      return;
+    }
+
+    animate(indicator, {
+      x,
+      width,
+      opacity: 1,
+      duration: 480,
+      ease: 'outBack',
+    });
+  }, [activeView]);
+
+  const navigateTo = (view: ViewId) => {
+    if (view !== activeView) {
+      window.history.pushState({ view }, '', `#${view}`);
+      setActiveView(view);
+    }
+    window.scrollTo(0, 0);
+  };
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -142,9 +244,13 @@ export function App() {
     <div className="cream-ambient-bg min-h-screen text-[#352A24]">
       {/* Soft sticky header */}
       <header className="sticky top-0 z-40 border-b border-[#EFE6D8]/90 bg-[#FBF7F0]/85 backdrop-blur-md">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3.5 sm:px-8">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-5 py-3.5 sm:px-8">
           <a
-            href="#top"
+            href="#specials"
+            onClick={(event) => {
+              event.preventDefault();
+              navigateTo('specials');
+            }}
             className="group inline-flex items-center gap-2.5 focus:outline-none"
           >
             <span className="flex h-10 w-10 items-center justify-center rounded-2xl border border-[#ECDCC7] bg-[#FFFDF9] text-[#D97757] shadow-xs transition-transform duration-300 group-hover:-rotate-6"><Gamepad2 className="h-5 w-5" aria-hidden="true" /></span>
@@ -158,25 +264,39 @@ export function App() {
             </div>
           </a>
 
-          <nav className="hidden items-center gap-1 rounded-full border border-[#ECE2D3] bg-[#FFFDF9]/90 p-1 md:flex">
-            <a
-              href="#specials"
-              className="rounded-full px-4 py-1.5 text-sm font-medium text-[#6B5A4E] transition-colors hover:bg-[#F5EDE0] hover:text-[#352A24]"
+          <nav
+            ref={navRef}
+            aria-label="Main navigation"
+            className="nav-switcher order-3 flex w-full items-center justify-center gap-1 rounded-full border border-[#ECE2D3] bg-[#FFFDF9]/90 p-1 md:order-none md:w-auto"
+          >
+            <span className="nav-switcher__indicator" aria-hidden="true" />
+            <button
+              type="button"
+              data-view="specials"
+              aria-current={activeView === 'specials' ? 'page' : undefined}
+              onClick={() => navigateTo('specials')}
+              className={`nav-link nav-switcher__button ${activeView === 'specials' ? 'nav-link--active' : ''}`}
             >
               House Specials
-            </a>
-            <a
-              href="#shelf"
-              className="rounded-full px-4 py-1.5 text-sm font-medium text-[#6B5A4E] transition-colors hover:bg-[#F5EDE0] hover:text-[#352A24]"
+            </button>
+            <button
+              type="button"
+              data-view="shelf"
+              aria-current={activeView === 'shelf' ? 'page' : undefined}
+              onClick={() => navigateTo('shelf')}
+              className={`nav-link nav-switcher__button ${activeView === 'shelf' ? 'nav-link--active' : ''}`}
             >
               The Shelf
-            </a>
-            <a
-              href="#pantry-notes"
-              className="rounded-full px-4 py-1.5 text-sm font-medium text-[#6B5A4E] transition-colors hover:bg-[#F5EDE0] hover:text-[#352A24]"
+            </button>
+            <button
+              type="button"
+              data-view="pantry-notes"
+              aria-current={activeView === 'pantry-notes' ? 'page' : undefined}
+              onClick={() => navigateTo('pantry-notes')}
+              className={`nav-link nav-switcher__button ${activeView === 'pantry-notes' ? 'nav-link--active' : ''}`}
             >
               Pantry Notes
-            </a>
+            </button>
           </nav>
 
           <div className="flex items-center gap-2.5">
@@ -205,7 +325,14 @@ export function App() {
         </div>
       </header>
 
-      <main id="top">
+      <main id="top" className="app-main">
+        <div
+          ref={viewContentRef}
+          className="view-transition"
+          data-active-view={activeView}
+        >
+          {activeView === 'specials' && (
+            <>
         {/* Hero Section */}
         <section className="mx-auto max-w-6xl px-5 pb-16 pt-10 sm:px-8 sm:pt-14 lg:pb-24">
           <div className="grid items-center gap-10 lg:grid-cols-12 lg:gap-12">
@@ -259,13 +386,14 @@ export function App() {
               </p>
 
               <div className="mt-7 flex flex-wrap items-center gap-3.5">
-                <a
-                  href="#shelf"
+                <button
+                  type="button"
+                  onClick={() => navigateTo('shelf')}
                   className="inline-flex items-center gap-2 rounded-full bg-[#D97757] px-6 py-3.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#C66545] active:scale-[0.98]"
                 >
                   Explore the Shelf
                   <ArrowDown className="h-4 w-4" />
-                </a>
+                </button>
 
                 <button
                   type="button"
@@ -366,19 +494,6 @@ export function App() {
             </div>
           </div>
         </section>
-
-        <section id="community-chat" className="mx-auto max-w-6xl px-5 py-10 sm:px-8" aria-labelledby="community-chat-title">
-          <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <span className="section-kicker">Community</span>
-              <h2 id="community-chat-title" className="font-display mt-2 text-2xl font-semibold text-[#352A24]">Talk with other Linux gamers</h2>
-              <p className="mt-1 text-sm text-[#78665A]">The community chat is available right here on the page.</p>
-            </div>
-            <a href="https://discord.gg/nZAMJ7BD" target="_blank" rel="noreferrer" className="text-sm font-semibold text-[#A95032] hover:underline">Open in Discord</a>
-          </div>
-          <div className="community-chat"><DiscordChat /></div>
-        </section>
-
         {/* House Specials: Cinnabar & Sober Spotlight */}
         <section id="specials" className="deferred-section mx-auto max-w-6xl px-5 py-10 sm:px-8">
           <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
@@ -539,7 +654,11 @@ export function App() {
             </div>
           </div>
         </section>
+            </>
+          )}
 
+          {activeView === 'shelf' && (
+            <>
         {/* Main Interactive Project Shelf */}
         <section id="shelf" className="deferred-section mx-auto max-w-6xl px-5 py-14 sm:px-8">
           <div className="flex flex-wrap items-end justify-between gap-4">
@@ -715,7 +834,22 @@ export function App() {
             </ul>
           )}
         </section>
+            </>
+          )}
 
+          {activeView === 'pantry-notes' && (
+            <>
+        <section id="community-chat" className="mx-auto max-w-6xl px-5 py-10 sm:px-8" aria-labelledby="community-chat-title">
+          <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <span className="section-kicker">Community</span>
+              <h2 id="community-chat-title" className="font-display mt-2 text-2xl font-semibold text-[#352A24]">Talk with other Linux gamers</h2>
+              <p className="mt-1 text-sm text-[#78665A]">The community chat is available right here on the page.</p>
+            </div>
+            <a href="https://discord.gg/nZAMJ7BD" target="_blank" rel="noreferrer" className="text-sm font-semibold text-[#A95032] hover:underline">Open in Discord</a>
+          </div>
+          <div className="community-chat"><DiscordChat /></div>
+        </section>
         {/* Cozy Pantry Notes + Crème Brûlée Illustration */}
         <section id="pantry-notes" className="deferred-section mx-auto max-w-6xl px-5 py-12 sm:px-8 lg:py-20">
           <div className="rounded-[40px] border border-[#ECE2D3] bg-[#FFFDF9] p-6 shadow-[0_16px_42px_-20px_rgba(122,91,63,0.12)] sm:p-10 lg:p-12">
@@ -799,6 +933,9 @@ export function App() {
             </div>
           </div>
         </section>
+            </>
+          )}
+        </div>
       </main>
 
       {/* Cozy Footer */}
