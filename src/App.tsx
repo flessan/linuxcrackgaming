@@ -841,6 +841,14 @@ export function App() {
             >
               Suggest a project
             </a>
+            <a
+              href="https://github.com/flessan/linuxcrackgaming/issues/new?template=update-project.yml"
+              target="_blank"
+              rel="noreferrer"
+              className="rounded-full border border-[#E6DAC8] bg-[#FFFDF9] px-3.5 py-1.5 transition-colors hover:text-[#45704E]"
+            >
+              Report a correction
+            </a>
           </div>
         </div>
       </footer>
