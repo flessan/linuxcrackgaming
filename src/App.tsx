@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Search,
   Sparkles,
@@ -17,35 +17,20 @@ import {
   List,
   Gamepad2,
 } from 'lucide-react';
-import {
-  GameProject,
-  INITIAL_PROJECTS,
-  PackageFormat,
-  ProjectCategory,
-} from './data/projects';
+import type { GameProject, PackageFormat, ProjectCategory } from './data/projects';
+import PROJECT_CATALOGUE from './data/projects.generated.json';
 import { ProjectCard } from './components/ProjectCard';
 import { ProjectDrawer } from './components/ProjectDrawer';
 import { TrayDrawer } from './components/TrayDrawer';
-import { SuggestModal } from './components/SuggestModal';
 import { CopyPill } from './components/CopyPill';
-const DiscordChat = lazy(() => import('./components/DiscordChat').then((module) => ({ default: module.DiscordChat })));
+import { DiscordChat } from './components/DiscordChat';
 
 const STORAGE_TRAY_KEY = 'linuxcrackgaming_tray_v1';
-const STORAGE_CUSTOM_KEY = 'linuxcrackgaming_custom_v1';
 
 type CategoryFilter = 'all' | ProjectCategory;
 type FormatFilter = 'all' | PackageFormat;
 
 export function App() {
-  const [customProjects, setCustomProjects] = useState<GameProject[]>(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_CUSTOM_KEY);
-      return raw ? (JSON.parse(raw) as GameProject[]) : [];
-    } catch {
-      return [];
-    }
-  });
-
   const [savedIds, setSavedIds] = useState<string[]>(() => {
     try {
       const raw = localStorage.getItem(STORAGE_TRAY_KEY);
@@ -60,17 +45,12 @@ export function App() {
   const [formatFilter, setFormatFilter] = useState<FormatFilter>('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortMode, setSortMode] = useState<'recommended' | 'name' | 'category'>('recommended');
-  const [isDiscordOpen, setIsDiscordOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<GameProject | null>(null);
   const [isTrayOpen, setIsTrayOpen] = useState(false);
-  const [isSuggestOpen, setIsSuggestOpen] = useState(false);
   const [showCrackNote, setShowCrackNote] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  const allProjects = useMemo(
-    () => [...customProjects, ...INITIAL_PROJECTS],
-    [customProjects]
-  );
+  const allProjects = PROJECT_CATALOGUE.projects as GameProject[];
 
   useEffect(() => {
     try {
@@ -79,14 +59,6 @@ export function App() {
       // ignore storage errors
     }
   }, [savedIds]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_CUSTOM_KEY, JSON.stringify(customProjects));
-    } catch {
-      // ignore storage errors
-    }
-  }, [customProjects]);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -105,12 +77,6 @@ export function App() {
       if (proj) showToast(`Tucked ${proj.name} into your tray!`);
       return [...prev, id];
     });
-  };
-
-  const handleAddCustomProject = (project: GameProject) => {
-    setCustomProjects((prev) => [project, ...prev]);
-    setSavedIds((prev) => (prev.includes(project.id) ? prev : [project.id, ...prev]));
-    showToast(`Pinned ${project.name} onto the shelf!`);
   };
 
   const loadStarterPack = () => {
@@ -214,14 +180,15 @@ export function App() {
           </nav>
 
           <div className="flex items-center gap-2.5">
-            <button
-              type="button"
-              onClick={() => setIsSuggestOpen(true)}
-              className="hidden items-center gap-1.5 rounded-full border border-[#E6DAC8] bg-[#FFFDF9] px-3.5 py-2 text-xs font-semibold text-[#5C4B40] transition-all hover:border-[#D7C3AA] hover:bg-[#FAF4EB] sm:inline-flex cursor-pointer"
+            <a
+              href="https://github.com/flessan/linuxcrackgaming/issues/new?template=add-project.yml"
+              target="_blank"
+              rel="noreferrer"
+              className="hidden items-center gap-1.5 rounded-full border border-[#E6DAC8] bg-[#FFFDF9] px-3.5 py-2 text-xs font-semibold text-[#5C4B40] transition-all hover:border-[#D7C3AA] hover:bg-[#FAF4EB] sm:inline-flex"
             >
-              <Plus className="h-3.5 w-3.5 text-[#D97757]" />
-              Pin a Repo
-            </button>
+              <Plus className="h-3.5 w-3.5 text-[#D97757]" aria-hidden="true" />
+              Suggest a project
+            </a>
 
             <button
               type="button"
@@ -400,13 +367,17 @@ export function App() {
           </div>
         </section>
 
-        <section id="community-chat" className="mx-auto max-w-6xl px-5 py-8 sm:px-8" aria-labelledby="community-chat-title">
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-[#ECE2D3] bg-[#FFFDF9] p-5">
-        <div><h2 id="community-chat-title" className="font-display text-xl font-semibold text-[#352A24]">Community chat</h2><p className="mt-1 text-sm text-[#78665A]">The embedded chat loads only when opened.</p></div>
-        <button type="button" onClick={() => setIsDiscordOpen((open) => !open)} aria-expanded={isDiscordOpen} className="rounded-full bg-[#352A24] px-4 py-2.5 text-sm font-semibold text-white">{isDiscordOpen ? 'Hide chat' : 'Open chat'}</button>
-      </div>
-      {isDiscordOpen && <div className="mt-4"><Suspense fallback={<p className="rounded-2xl bg-white p-6 text-sm text-[#78665A]">Loading community chat…</p>}><DiscordChat /></Suspense></div>}
-    </section>
+        <section id="community-chat" className="mx-auto max-w-6xl px-5 py-10 sm:px-8" aria-labelledby="community-chat-title">
+          <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <span className="section-kicker">Community</span>
+              <h2 id="community-chat-title" className="font-display mt-2 text-2xl font-semibold text-[#352A24]">Talk with other Linux gamers</h2>
+              <p className="mt-1 text-sm text-[#78665A]">The community chat is available right here on the page.</p>
+            </div>
+            <a href="https://discord.gg/nZAMJ7BD" target="_blank" rel="noreferrer" className="text-sm font-semibold text-[#A95032] hover:underline">Open in Discord</a>
+          </div>
+          <div className="community-chat"><DiscordChat /></div>
+        </section>
 
         {/* House Specials: Cinnabar & Sober Spotlight */}
         <section id="specials" className="deferred-section mx-auto max-w-6xl px-5 py-10 sm:px-8">
@@ -582,14 +553,15 @@ export function App() {
               </h2>
             </div>
 
-            <button
-              type="button"
-              onClick={() => setIsSuggestOpen(true)}
-              className="inline-flex items-center gap-2 rounded-full border border-[#E4D6C3] bg-[#FFFDF9] px-4 py-2.5 text-xs font-semibold text-[#5B4A3F] shadow-xs transition-all hover:border-[#D97757] hover:text-[#B55939] cursor-pointer"
+            <a
+              href="https://github.com/flessan/linuxcrackgaming/issues/new?template=add-project.yml"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 rounded-full border border-[#E4D6C3] bg-[#FFFDF9] px-4 py-2.5 text-xs font-semibold text-[#5B4A3F] shadow-xs transition-all hover:border-[#D97757] hover:text-[#B55939]"
             >
-              <Plus className="h-4 w-4 text-[#D97757]" />
-              Add your own GitHub pick
-            </button>
+              <Plus className="h-4 w-4 text-[#D97757]" aria-hidden="true" />
+              Suggest a project on GitHub
+            </a>
           </div>
 
           {/* Warm Filter Bar */}
@@ -703,8 +675,7 @@ export function App() {
                 No crumbs matched that search
               </h3>
               <p className="mx-auto mt-1.5 max-w-md text-sm text-[#7B695D]">
-                Try clearing a filter-or if you know a cool GitHub Linux port we haven’t
-                stocked yet, you can pin it right onto your shelf!
+                Try clearing a filter, or submit a GitHub issue if a project is missing from the catalogue.
               </p>
               <div className="mt-5 flex flex-wrap justify-center gap-3">
                 <button
@@ -718,13 +689,14 @@ export function App() {
                 >
                   Show All Projects
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setIsSuggestOpen(true)}
-                  className="rounded-full border border-[#E4D6C3] bg-[#FAF4EB] px-5 py-2.5 text-xs font-semibold text-[#5B4A3F] cursor-pointer"
+                <a
+                  href="https://github.com/flessan/linuxcrackgaming/issues/new?template=add-project.yml"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="rounded-full border border-[#E4D6C3] bg-[#FAF4EB] px-5 py-2.5 text-xs font-semibold text-[#5B4A3F]"
                 >
-                  Pin a GitHub Repo
-                </button>
+                  Suggest a project
+                </a>
               </div>
             </div>
           ) : (
@@ -861,13 +833,14 @@ export function App() {
             >
               Sober (VinegarHQ)
             </a>
-            <button
-              type="button"
-              onClick={() => setIsSuggestOpen(true)}
-              className="rounded-full border border-[#E6DAC8] bg-[#FFFDF9] px-3.5 py-1.5 transition-colors hover:text-[#B55939] cursor-pointer"
+            <a
+              href="https://github.com/flessan/linuxcrackgaming/issues/new?template=add-project.yml"
+              target="_blank"
+              rel="noreferrer"
+              className="rounded-full border border-[#E6DAC8] bg-[#FFFDF9] px-3.5 py-1.5 transition-colors hover:text-[#B55939]"
             >
-              Pin a Repo
-            </button>
+              Suggest a project
+            </a>
           </div>
         </div>
       </footer>
@@ -891,12 +864,6 @@ export function App() {
         }}
         onLoadStarterPack={loadStarterPack}
         onSelectProject={(project) => setSelectedProject(project)}
-      />
-
-      <SuggestModal
-        isOpen={isSuggestOpen}
-        onClose={() => setIsSuggestOpen(false)}
-        onAddProject={handleAddCustomProject}
       />
 
       {/* Soft playful toast */}
