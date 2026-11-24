@@ -55,7 +55,8 @@ Community suggestions should be submitted through the GitHub issue template at h
   "vibeNote": "Tastes like warm cinnamon toast and 240 FPS chunk streaming.",
   "emojiMark": "https://avatars.githubusercontent.com/u/344119591?s=200&v=4",
   "imageUrl": "https://avatars.githubusercontent.com/u/344119591?s=200&v=4",
-  "imageAlt": "Cinnabar project logo"
+  "imageAlt": "Cinnabar project logo",
+  "imageFit": "contain"
 }
 ```
 
@@ -107,7 +108,8 @@ Community suggestions should be submitted through the GitHub issue template at h
   "vibeNote": "Smooth as iced matcha oat latte-just click play and hop into obbies.",
   "emojiMark": "https://sober.vinegarhq.org/img/icon/sober.svg",
   "imageUrl": "https://sober.vinegarhq.org/img/icon/sober.svg",
-  "imageAlt": "Sober project logo"
+  "imageAlt": "Sober project logo",
+  "imageFit": "contain"
 }
 ```
 
@@ -152,7 +154,8 @@ Community suggestions should be submitted through the GitHub issue template at h
   "vibeNote": "Extra caramel drizzle on top of your Sober setup.",
   "emojiMark": "🎛️",
   "imageUrl": "https://github.com/JADRT22.png?size=512",
-  "imageAlt": "Soberix project logo"
+  "imageAlt": "Soberix project logo",
+  "imageFit": "contain"
 }
 ```
 
@@ -203,7 +206,8 @@ Community suggestions should be submitted through the GitHub issue template at h
   "vibeNote": "Like a neat wooden spice rack, except every jar is a cozy modded world.",
   "emojiMark": "🔮",
   "imageUrl": "https://github.com/PrismLauncher.png?size=512",
-  "imageAlt": "Prism Launcher project logo"
+  "imageAlt": "Prism Launcher project logo",
+  "imageFit": "contain"
 }
 ```
 
@@ -249,7 +253,8 @@ Community suggestions should be submitted through the GitHub issue template at h
   "vibeNote": "Pure daytime-stage joy without your laptop fans taking flight.",
   "emojiMark": "💨",
   "imageUrl": "https://github.com/hedge-dev.png?size=512",
-  "imageAlt": "UnleashedRecomp project logo"
+  "imageAlt": "UnleashedRecomp project logo",
+  "imageFit": "contain"
 }
 ```
 
@@ -294,7 +299,8 @@ Community suggestions should be submitted through the GitHub issue template at h
   "vibeNote": "Clock Town has never looked softer, warmer, or smoother.",
   "emojiMark": "🌙",
   "imageUrl": "https://github.com/Zelda64Recomp.png?size=512",
-  "imageAlt": "Zelda 64: Recompiled project logo"
+  "imageAlt": "Zelda 64: Recompiled project logo",
+  "imageFit": "contain"
 }
 ```
 
@@ -339,7 +345,8 @@ Community suggestions should be submitted through the GitHub issue template at h
   "vibeNote": "Nostalgia warmed up like freshly baked Lon Lon Milk bread.",
   "emojiMark": "🛡️",
   "imageUrl": "https://github.com/HarbourMasters.png?size=512",
-  "imageAlt": "Ship of Harkinian project logo"
+  "imageAlt": "Ship of Harkinian project logo",
+  "imageFit": "contain"
 }
 ```
 
@@ -384,7 +391,8 @@ Community suggestions should be submitted through the GitHub issue template at h
   "vibeNote": "Warm lantern light in Balmora, running effortlessly on Linux.",
   "emojiMark": "🕯️",
   "imageUrl": "https://github.com/OpenMW.png?size=512",
-  "imageAlt": "OpenMW project logo"
+  "imageAlt": "OpenMW project logo",
+  "imageFit": "contain"
 }
 ```
 
@@ -435,7 +443,8 @@ Community suggestions should be submitted through the GitHub issue template at h
   "vibeNote": "Cotton candy skies and gentle isometric bliss.",
   "emojiMark": "🎡",
   "imageUrl": "https://github.com/OpenRCT2.png?size=512",
-  "imageAlt": "OpenRCT2 project logo"
+  "imageAlt": "OpenRCT2 project logo",
+  "imageFit": "contain"
 }
 ```
 
@@ -484,7 +493,8 @@ Community suggestions should be submitted through the GitHub issue template at h
   "vibeNote": "Stay awhile and listen-at 16:9 without touching Wine.",
   "emojiMark": "🔥",
   "imageUrl": "https://github.com/diasurgical.png?size=512",
-  "imageAlt": "DevilutionX project logo"
+  "imageAlt": "DevilutionX project logo",
+  "imageFit": "contain"
 }
 ```
 
@@ -528,7 +538,8 @@ Community suggestions should be submitted through the GitHub issue template at h
   "vibeNote": "Zero clutter, soft edges, instant Proton magic.",
   "emojiMark": "🪶",
   "imageUrl": "https://github.com/Faugus.png?size=512",
-  "imageAlt": "Faugus Launcher project logo"
+  "imageAlt": "Faugus Launcher project logo",
+  "imageFit": "contain"
 }
 ```
 
@@ -573,7 +584,8 @@ Community suggestions should be submitted through the GitHub issue template at h
   "vibeNote": "Crystalline Cocoon vibes, freshly compiled on your penguin box.",
   "emojiMark": "❄️",
   "imageUrl": "https://github.com/ps4star.png?size=512",
-  "imageAlt": "WhiteRecomp project logo"
+  "imageAlt": "WhiteRecomp project logo",
+  "imageFit": "contain"
 }
 ```
 
@@ -625,7 +637,8 @@ Community suggestions should be submitted through the GitHub issue template at h
   "vibeNote": "One library shelf for several PC game stores.",
   "emojiMark": "icon:gamepad",
   "imageUrl": "https://github.com/Heroic-Games-Launcher/HeroicGamesLauncher/assets/26871415/70c9e0f2-3fa8-4e56-9bb0-0e5f8713c968",
-  "imageAlt": "Heroic Games Launcher library screenshot"
+  "imageAlt": "Heroic Games Launcher library screenshot",
+  "imageFit": "cover"
 }
 ```
 
@@ -677,7 +690,8 @@ Community suggestions should be submitted through the GitHub issue template at h
   "vibeNote": "A single front door for a very mixed game collection.",
   "emojiMark": "icon:gamepad",
   "imageUrl": "https://github.com/lutris.png?size=512",
-  "imageAlt": "Lutris project logo"
+  "imageAlt": "Lutris project logo",
+  "imageFit": "contain"
 }
 ```
 
@@ -722,7 +736,8 @@ Community suggestions should be submitted through the GitHub issue template at h
   "vibeNote": "Separate, tidy environments instead of one tangled Wine prefix.",
   "emojiMark": "icon:layers",
   "imageUrl": "https://raw.githubusercontent.com/bottlesdevs/Bottles/main/docs/screenshot-dark.png",
-  "imageAlt": "Bottles application screenshot"
+  "imageAlt": "Bottles application screenshot",
+  "imageFit": "cover"
 }
 ```
 
@@ -774,6 +789,7 @@ Community suggestions should be submitted through the GitHub issue template at h
   "vibeNote": "A small toolkit for keeping your compatibility runners current.",
   "emojiMark": "icon:wrench",
   "imageUrl": "https://raw.githubusercontent.com/DavidoTek/ProtonUp-Qt/main/.github/images/pupgui2-screenshot2.png",
-  "imageAlt": "ProtonUp-Qt compatibility tool manager screenshot"
+  "imageAlt": "ProtonUp-Qt compatibility tool manager screenshot",
+  "imageFit": "cover"
 }
 ```
