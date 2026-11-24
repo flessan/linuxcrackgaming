@@ -634,9 +634,13 @@
 .project-card__media-fallback {
   position: absolute;
   inset: 0;
-  display: grid;
+  display: none;
   place-items: center;
   color: #a27a62;
+}
+
+.project-card__media--fallback .project-card__media-fallback {
+  display: grid;
 }
 
 .project-card__image {
