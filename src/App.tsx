@@ -362,7 +362,7 @@ export function App() {
             <button
               type="button"
               onClick={() => setIsTrayOpen(true)}
-              className="inline-flex items-center gap-2 rounded-full border border-[#EBCBB9] bg-[#FCECE4] px-4 py-2 text-xs font-semibold text-[#B35737] transition-all hover:bg-[#F8DFD1] active:scale-95 cursor-pointer"
+              className="header-tray-action inline-flex items-center gap-2 rounded-full border border-[#EBCBB9] bg-[#FCECE4] px-4 py-2 text-xs font-semibold text-[#B35737] transition-all hover:bg-[#F8DFD1] active:scale-95 cursor-pointer"
             >
               <UtensilsCrossed className="h-3.5 w-3.5" />
               <span>My Tray</span>
