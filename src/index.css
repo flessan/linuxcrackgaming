@@ -1699,3 +1699,29 @@
   color: #6d594b;
   font-size: 0.62rem;
 }
+
+
+/* Keep primary header and filter controls comfortable on touch devices. */
+.header-tray-action {
+  min-height: 2.75rem;
+}
+
+@media (pointer: coarse) {
+  .category-filter,
+  .format-filter,
+  .icon-action,
+  .view-toggle button,
+  .nav-switcher .nav-switcher__button,
+  .suggest-project-link,
+  .header-tray-action {
+    min-height: 2.75rem;
+  }
+
+  .category-filter,
+  .format-filter,
+  .view-toggle button,
+  .suggest-project-link,
+  .header-tray-action {
+    min-width: 2.75rem;
+  }
+}
