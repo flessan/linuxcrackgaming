@@ -1672,3 +1672,30 @@
 @media (prefers-reduced-motion: reduce) {
   .project-card__image { transition: none; }
 }
+
+
+/* Keep category labels readable; only the count gets the compact badge treatment. */
+.category-filter > span:first-child {
+  display: block;
+  min-width: 0;
+  height: auto;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.category-filter > span:last-child {
+  display: inline-grid;
+  min-width: 1.2rem;
+  height: 1.2rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 999px;
+  padding-inline: 0.25rem;
+  background: rgb(255 255 255 / 84%);
+  color: #6d594b;
+  font-size: 0.62rem;
+}
