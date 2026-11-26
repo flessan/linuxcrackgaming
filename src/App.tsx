@@ -162,7 +162,7 @@ export function App() {
   }, [activeView]);
 
   useEffect(() => {
-    const activeButton = navRef.current?.querySelector<HTMLButtonElement>(
+    const activeButton = navRef.current?.querySelector<HTMLAnchorElement>(
       `[data-view="${activeView}"]`
     );
     const indicator = navRef.current?.querySelector<HTMLElement>('.nav-switcher__indicator');
@@ -308,33 +308,42 @@ export function App() {
             className="nav-switcher order-3 flex w-full items-center justify-center gap-1 rounded-full border border-[#ECE2D3] bg-[#FFFDF9]/90 p-1 md:order-none md:w-auto"
           >
             <span className="nav-switcher__indicator" aria-hidden="true" />
-            <button
-              type="button"
+            <a
+              href="#specials"
               data-view="specials"
               aria-current={activeView === 'specials' ? 'page' : undefined}
-              onClick={() => navigateTo('specials')}
+              onClick={(event) => {
+                event.preventDefault();
+                navigateTo('specials');
+              }}
               className={`nav-link nav-switcher__button ${activeView === 'specials' ? 'nav-link--active' : ''}`}
             >
               House Specials
-            </button>
-            <button
-              type="button"
+            </a>
+            <a
+              href="#shelf"
               data-view="shelf"
               aria-current={activeView === 'shelf' ? 'page' : undefined}
-              onClick={() => navigateTo('shelf')}
+              onClick={(event) => {
+                event.preventDefault();
+                navigateTo('shelf');
+              }}
               className={`nav-link nav-switcher__button ${activeView === 'shelf' ? 'nav-link--active' : ''}`}
             >
               The Shelf
-            </button>
-            <button
-              type="button"
+            </a>
+            <a
+              href="#pantry-notes"
               data-view="pantry-notes"
               aria-current={activeView === 'pantry-notes' ? 'page' : undefined}
-              onClick={() => navigateTo('pantry-notes')}
+              onClick={(event) => {
+                event.preventDefault();
+                navigateTo('pantry-notes');
+              }}
               className={`nav-link nav-switcher__button ${activeView === 'pantry-notes' ? 'nav-link--active' : ''}`}
             >
               Pantry Notes
-            </button>
+            </a>
           </nav>
 
           <div className="flex items-center gap-2.5">
