@@ -68,6 +68,8 @@ export function App() {
   );
   const viewContentRef = useRef<HTMLDivElement | null>(null);
   const navRef = useRef<HTMLElement | null>(null);
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
+  const pendingSearchFocusRef = useRef(false);
 
   const allProjects = PROJECT_CATALOGUE.projects as GameProject[];
 
@@ -78,6 +80,36 @@ export function App() {
       // ignore storage errors
     }
   }, [savedIds]);
+
+  useEffect(() => {
+    if (activeView !== 'shelf' || !pendingSearchFocusRef.current) return;
+
+    pendingSearchFocusRef.current = false;
+    const frame = window.requestAnimationFrame(() => searchInputRef.current?.focus());
+    return () => window.cancelAnimationFrame(frame);
+  }, [activeView]);
+
+  useEffect(() => {
+    const handleSearchShortcut = (event: KeyboardEvent) => {
+      const target = event.target instanceof HTMLElement ? event.target : null;
+      const isEditing = Boolean(target?.isContentEditable || target?.closest('input, textarea, select, [contenteditable="true"]'));
+      const isCommandK = (event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k';
+      const isSlash = event.key === '/' && !event.metaKey && !event.ctrlKey && !event.altKey;
+
+      if (!isCommandK && !(isSlash && !isEditing)) return;
+
+      event.preventDefault();
+      if (activeView !== 'shelf') {
+        pendingSearchFocusRef.current = true;
+        navigateTo('shelf');
+      } else {
+        searchInputRef.current?.focus();
+      }
+    };
+
+    window.addEventListener('keydown', handleSearchShortcut);
+    return () => window.removeEventListener('keydown', handleSearchShortcut);
+  }, [activeView]);
 
   useEffect(() => {
     const initialView = getViewFromHash();
@@ -130,7 +162,7 @@ export function App() {
   }, [activeView]);
 
   useEffect(() => {
-    const activeButton = navRef.current?.querySelector<HTMLButtonElement>(
+    const activeButton = navRef.current?.querySelector<HTMLAnchorElement>(
       `[data-view="${activeView}"]`
     );
     const indicator = navRef.current?.querySelector<HTMLElement>('.nav-switcher__indicator');
@@ -204,6 +236,10 @@ export function App() {
         project.language,
         project.repoSlug,
         project.categoryLabel,
+        project.license,
+        project.howItWorks,
+        project.byocRequirement,
+        ...project.highlights,
         ...project.formats,
       ]
         .join(' ')
@@ -243,8 +279,9 @@ export function App() {
 
   return (
     <div className="cream-ambient-bg min-h-screen text-[#352A24]">
+      <a className="skip-link" href="#top">Skip to content</a>
       {/* Soft sticky header */}
-      <header className="sticky top-0 z-40 border-b border-[#EFE6D8]/90 bg-[#FBF7F0]/85 backdrop-blur-md">
+      <header className="site-header sticky top-0 z-40 border-b border-[#EFE6D8]/90 bg-[#FBF7F0]/85 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-5 py-3.5 sm:px-8">
           <a
             href="#specials"
@@ -271,33 +308,42 @@ export function App() {
             className="nav-switcher order-3 flex w-full items-center justify-center gap-1 rounded-full border border-[#ECE2D3] bg-[#FFFDF9]/90 p-1 md:order-none md:w-auto"
           >
             <span className="nav-switcher__indicator" aria-hidden="true" />
-            <button
-              type="button"
+            <a
+              href="#specials"
               data-view="specials"
               aria-current={activeView === 'specials' ? 'page' : undefined}
-              onClick={() => navigateTo('specials')}
+              onClick={(event) => {
+                event.preventDefault();
+                navigateTo('specials');
+              }}
               className={`nav-link nav-switcher__button ${activeView === 'specials' ? 'nav-link--active' : ''}`}
             >
               House Specials
-            </button>
-            <button
-              type="button"
+            </a>
+            <a
+              href="#shelf"
               data-view="shelf"
               aria-current={activeView === 'shelf' ? 'page' : undefined}
-              onClick={() => navigateTo('shelf')}
+              onClick={(event) => {
+                event.preventDefault();
+                navigateTo('shelf');
+              }}
               className={`nav-link nav-switcher__button ${activeView === 'shelf' ? 'nav-link--active' : ''}`}
             >
               The Shelf
-            </button>
-            <button
-              type="button"
+            </a>
+            <a
+              href="#pantry-notes"
               data-view="pantry-notes"
               aria-current={activeView === 'pantry-notes' ? 'page' : undefined}
-              onClick={() => navigateTo('pantry-notes')}
+              onClick={(event) => {
+                event.preventDefault();
+                navigateTo('pantry-notes');
+              }}
               className={`nav-link nav-switcher__button ${activeView === 'pantry-notes' ? 'nav-link--active' : ''}`}
             >
               Pantry Notes
-            </button>
+            </a>
           </nav>
 
           <div className="flex items-center gap-2.5">
@@ -305,16 +351,18 @@ export function App() {
               href="https://github.com/flessan/linuxcrackgaming/issues/new?template=add-project.yml"
               target="_blank"
               rel="noreferrer"
-              className="hidden items-center gap-1.5 rounded-full border border-[#E6DAC8] bg-[#FFFDF9] px-3.5 py-2 text-xs font-semibold text-[#5C4B40] transition-all hover:border-[#D7C3AA] hover:bg-[#FAF4EB] sm:inline-flex"
+              aria-label="Suggest a project"
+              title="Suggest a project on GitHub"
+              className="suggest-project-link inline-flex min-h-10 items-center gap-1.5 rounded-full border border-[#E6DAC8] bg-[#FFFDF9] px-3.5 py-2 text-xs font-semibold text-[#5C4B40] transition-all hover:border-[#D7C3AA] hover:bg-[#FAF4EB]"
             >
               <Plus className="h-3.5 w-3.5 text-[#D97757]" aria-hidden="true" />
-              Suggest a project
+              <span className="suggest-project-link__label">Suggest a project</span>
             </a>
 
             <button
               type="button"
               onClick={() => setIsTrayOpen(true)}
-              className="inline-flex items-center gap-2 rounded-full border border-[#EBCBB9] bg-[#FCECE4] px-4 py-2 text-xs font-semibold text-[#B35737] transition-all hover:bg-[#F8DFD1] active:scale-95 cursor-pointer"
+              className="header-tray-action inline-flex items-center gap-2 rounded-full border border-[#EBCBB9] bg-[#FCECE4] px-4 py-2 text-xs font-semibold text-[#B35737] transition-all hover:bg-[#F8DFD1] active:scale-95 cursor-pointer"
             >
               <UtensilsCrossed className="h-3.5 w-3.5" />
               <span>My Tray</span>
@@ -335,55 +383,24 @@ export function App() {
           {activeView === 'specials' && (
             <>
         {/* Hero Section */}
-        <section className="mx-auto max-w-6xl px-5 pb-16 pt-10 sm:px-8 sm:pt-14 lg:pb-24">
+        <section className="hero-section mx-auto max-w-6xl px-5 pb-16 pt-10 sm:px-8 sm:pt-14 lg:pb-24">
           <div className="grid items-center gap-10 lg:grid-cols-12 lg:gap-12">
             {/* Hero Copy */}
-            <div className="lg:col-span-7">
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#EAE0D0] bg-[#FFFDF9] px-4 py-1.5 text-xs font-semibold text-[#7A6659] cream-pill-shadow">
+            <div className="hero-copy lg:col-span-7">
+              <div className="hero-eyebrow inline-flex items-center gap-2 rounded-full border border-[#EAE0D0] bg-[#FFFDF9] px-4 py-1.5 text-xs font-semibold text-[#7A6659] cream-pill-shadow">
                 <span className="h-2 w-2 rounded-full bg-[#6C9A76]" />
-                GitHub-first · .AppImage & .Flatpak friendly · zero dual-booting
+                A curated guide to Linux gaming projects
               </div>
 
-              <h1 className="font-display mt-5 text-4xl font-semibold leading-[1.12] tracking-tight text-[#352A24] sm:text-5xl lg:text-[3.45rem]">
-                Play the “unplayable” on Linux, the{' '}
-                <span className="relative inline-block text-[#D97757]">
-                  creamy
-                  <svg
-                    aria-hidden="true"
-                    viewBox="0 0 180 14"
-                    className="absolute -bottom-1.5 left-0 w-full text-[#F1C7A8]"
-                    fill="none"
-                  >
-                    <path
-                      d="M3 10C42 3 128 2 177 9"
-                      stroke="currentColor"
-                      strokeWidth="5"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                </span>{' '}
-                way.
+              <h1 className="hero-title font-display mt-5 text-4xl font-semibold leading-[1.12] tracking-tight text-[#352A24] sm:text-5xl lg:text-[3.45rem]">
+                Your next Linux gaming project starts{' '}
+                <span className="text-[#D97757]">here.</span>
               </h1>
 
-              <p className="mt-6 max-w-xl text-base leading-relaxed text-[#645348] sm:text-[17px]">
-                A playful, understated shelf of community GitHub projects that crack open
-                tricky compatibility barriers-from Rust-powered rewrites like{' '}
-                <button
-                  type="button"
-                  onClick={() => setSelectedProject(cinnabarProject)}
-                  className="font-semibold text-[#B55939] underline decoration-[#EABFA9] decoration-2 underline-offset-4 hover:text-[#9C472A] cursor-pointer"
-                >
-                  Cinnabar
-                </button>{' '}
-                to silky Flatpak runtimes like{' '}
-                <button
-                  type="button"
-                  onClick={() => setSelectedProject(soberProject)}
-                  className="font-semibold text-[#477150] underline decoration-[#BDD8C1] decoration-2 underline-offset-4 hover:text-[#355A3D] cursor-pointer"
-                >
-                  Sober
-                </button>
-                .
+              <p className="hero-lede mt-6 max-w-xl text-base leading-relaxed text-[#645348] sm:text-[17px]">
+                Discover community-made rewrites, native ports, open-source games and useful
+                tools. Compare requirements, choose a package, and get clear install steps
+                before you dive in.
               </p>
 
               <div className="mt-7 flex flex-wrap items-center gap-3.5">
@@ -392,7 +409,7 @@ export function App() {
                   onClick={() => navigateTo('shelf')}
                   className="inline-flex items-center gap-2 rounded-full bg-[#D97757] px-6 py-3.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#C66545] active:scale-[0.98]"
                 >
-                  Explore the Shelf
+                  Browse the catalogue
                   <ArrowDown className="h-4 w-4" />
                 </button>
 
@@ -402,7 +419,7 @@ export function App() {
                   className="inline-flex items-center gap-2 rounded-full border border-[#E5D8C5] bg-[#FFFDF9] px-5 py-3.5 text-sm font-semibold text-[#5C4B40] transition-all hover:border-[#D5C1A7] hover:bg-[#FAF4EA] cursor-pointer"
                 >
                   <HelpCircle className="h-4 w-4 text-[#C98E32]" />
-                  Wait - why “Crack”?
+                  What does the name mean?
                 </button>
               </div>
 
@@ -410,17 +427,17 @@ export function App() {
               {showCrackNote && (
                 <div className="mt-5 max-w-lg rounded-3xl border border-[#ECDCC6] bg-[#FFFDF9] p-4 text-sm leading-relaxed text-[#5E4E43] cream-pill-shadow">
                   <div className="flex items-start gap-3">
-                    <span className="text-xl" aria-hidden="true">
-                      🥄
+                    <span className="hero-note-icon" aria-hidden="true">
+                      <Gamepad2 className="h-5 w-5" />
                     </span>
                     <div>
                       <p className="font-display font-semibold text-[#352A24]">
-                        Purely figurative, zero piracy! :&apos;)
+                        A name about opening possibilities.
                       </p>
                       <p className="mt-1 text-[13.5px]">
-                        Think “cracking open a tricky puzzle” or tapping the sweet caramelized
-                        crust of a crème brûlée. Every project here is an open-source rewrite,
-                        recompilation, or runtime that works with games you legally own.
+                        “Crack” is figurative: this catalogue celebrates open-source
+                        projects, community ports and compatibility tools. Some projects
+                        may require files from a game you already own.
                       </p>
                     </div>
                   </div>
@@ -446,12 +463,15 @@ export function App() {
             </div>
 
             {/* Hero Visual */}
-            <div className="relative mx-auto w-full max-w-md lg:col-span-5 lg:max-w-none">
-              <div className="relative rounded-[44px] border-2 border-[#EFE4D3] bg-[#F8EFE0] p-4 shadow-[0_24px_60px_-24px_rgba(122,91,63,0.18)] sm:p-5">
+            <div className="hero-art-wrap relative mx-auto w-full max-w-md lg:col-span-5 lg:max-w-none">
+              <div className="hero-art-frame relative rounded-[44px] border-2 border-[#EFE4D3] bg-[#F8EFE0] p-4 shadow-[0_24px_60px_-24px_rgba(122,91,63,0.18)] sm:p-5">
                 <img
                   src="/images/cozy-penguin-hero.png"
-                  alt="Cozy creamy penguin sitting on a cushion playing a pastel game controller beside a steaming cup of milk tea"
-                  className="aspect-square w-full rounded-[34px] object-cover"
+                  alt="A cozy penguin playing a game beside a warm drink"
+                  className="hero-art-image aspect-square w-full rounded-[34px] object-cover"
+                  width="900"
+                  height="900"
+                  fetchPriority="high"
                 />
 
                 {/* Floating pill 1: Cinnabar */}
@@ -688,23 +708,40 @@ export function App() {
           <div className="mt-6 rounded-[28px] border border-[#ECE2D3] bg-[#FFFDF9]/90 p-4 sm:p-5 cream-pill-shadow">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               {/* Search input */}
-              <search className="relative flex-1 lg:max-w-sm" aria-label="Search catalogue">
-                <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9B897B]" />
+              <search className="catalog-search relative flex-1 lg:max-w-md" aria-label="Search catalogue">
+                <Search className="pointer-events-none h-4 w-4 shrink-0 text-[#9B897B]" aria-hidden="true" />
                 <input
-                  type="text"
+                  ref={searchInputRef}
+                  id="catalog-search"
+                  type="search"
+                  autoComplete="off"
+                  spellCheck={false}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search Zelda, Rust, Roblox, Flatpak..."
+                  placeholder="Search games, projects, tools, packages..."
                   aria-label="Search Linux gaming projects"
-                  className="w-full rounded-2xl border border-[#EAE0D0] bg-[#FBF7F0] py-2.5 pl-10 pr-4 text-sm text-[#352A24] placeholder:text-[#A49284] focus:border-[#D97757] focus:outline-none"
+                  aria-keyshortcuts="/ Control+K Meta+K"
                 />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    className="search-clear"
+                    onClick={() => setSearchQuery('')}
+                    aria-label="Clear search"
+                  >
+                    Clear
+                  </button>
+                )}
+                <span className="catalog-search__shortcut" aria-hidden="true">
+                  <kbd>Ctrl</kbd><kbd>K</kbd>
+                </span>
               </search>
 
               {/* Category pills */}
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="category-filter-row" role="group" aria-label="Filter by project category">
                 {(
                   [
-                    { id: 'all', label: 'All Treats', count: categoryCounts.all },
+                    { id: 'all', label: 'All projects', count: categoryCounts.all },
                     { id: 'rewrites', label: 'Engine Rewrites', count: categoryCounts.rewrites },
                     { id: 'runtimes', label: 'Runtimes & Launchers', count: categoryCounts.runtimes },
                     { id: 'recomp', label: 'Native Recomp', count: categoryCounts.recomp },
@@ -718,11 +755,8 @@ export function App() {
                       key={tab.id}
                       type="button"
                       onClick={() => setCategoryFilter(tab.id)}
-                      className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-semibold transition-all cursor-pointer ${
-                        active
-                          ? 'bg-[#352A24] text-[#FFFDF9] shadow-xs'
-                          : 'bg-[#F5EEE2] text-[#69574B] hover:bg-[#ECE2D2]'
-                      }`}
+                      className={`category-filter ${active ? 'category-filter--active' : ''}`}
+                      aria-pressed={active}
                     >
                       <span>{tab.label}</span>
                       <span
@@ -749,11 +783,12 @@ export function App() {
                       key={fmt}
                       type="button"
                       onClick={() => setFormatFilter(fmt)}
-                      className={`rounded-full border px-3 py-1 text-xs font-semibold transition-all cursor-pointer ${
+                      className={`format-filter rounded-full border px-3 py-1 text-xs font-semibold transition-all cursor-pointer ${
                         active
                           ? 'border-[#D97757] bg-[#FCECE4] text-[#B55939]'
                           : 'border-[#EAE0D0] bg-[#FBF7F0] text-[#756358] hover:bg-[#F3EADB]'
                       }`}
+                      aria-pressed={active}
                     >
                       {fmt === 'all' ? 'Any Format' : fmt}
                     </button>
@@ -786,6 +821,17 @@ export function App() {
                 </button>
               )}
             </div>
+          </div>
+
+          <div className="catalog-results-meta" role="status" aria-live="polite">
+            <p>
+              <strong>{filteredProjects.length}</strong>
+              <span>{filteredProjects.length === 1 ? ' project found' : ' projects found'}</span>
+              <span className="catalog-results-meta__total"> out of {allProjects.length}</span>
+            </p>
+            <span className="catalog-results-meta__hint">
+              Press <kbd>/</kbd> or <kbd>Ctrl</kbd> + <kbd>K</kbd> to search
+            </span>
           </div>
 
           {/* Grid of Project Cards */}
@@ -949,9 +995,9 @@ export function App() {
               <span className="font-normal text-[#8D7A6D]">:&apos;)</span>
             </p>
             <p className="mt-1 max-w-md text-xs leading-relaxed text-[#857265]">
-              Figurative “crack” only-celebrating legitimate open-source GitHub rewrites,
-              runtimes, and native ports. All game titles and trademarks belong to their
-              respective owners.
+              The name is figurative. This catalogue celebrates legitimate open-source
+              projects, community ports and Linux gaming tools. Game titles and trademarks
+              belong to their respective owners.
             </p>
           </div>
 

@@ -1,0 +1,122 @@
+name: Catalogue issue to PR
+
+on:
+  issues:
+    types:
+      - opened
+      - edited
+      - reopened
+
+concurrency:
+  group: catalogue-issue-${{ github.event.issue.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  actions: write
+
+jobs:
+  create-catalogue-pr:
+    if: ${{ !github.event.issue.pull_request && startsWith(github.event.issue.title, '[Project submission]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v6
+        with:
+          ref: main
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Turn the submitted form into a README entry
+        id: generate
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: node scripts/issue-to-readme-row.mjs
+
+      - name: Open or update a draft pull request
+        id: cpr
+        uses: peter-evans/create-pull-request@v8
+        with:
+          branch: catalogue/issue-${{ github.event.issue.number }}
+          base: main
+          delete-branch: true
+          commit-message: "Add catalogue project from issue #${{ github.event.issue.number }}"
+          title: "[Catalogue] Add project from issue #${{ github.event.issue.number }}"
+          body: |
+            This draft pull request was generated automatically from issue #${{ github.event.issue.number }}.
+
+            - Adds a readable row to the README project catalogue.
+            - Adds a collapsible detail block with the submitted information and installation instructions.
+            - Runs the README-to-JSON generator, TypeScript check and production build.
+
+            **Maintainer review is still required.** Please verify the upstream repository, package formats, install commands, licence and game-data requirements before merging.
+
+            Closes #${{ github.event.issue.number }}
+
+          draft: true
+
+      - name: Comment with the generated pull request
+        if: steps.cpr.outputs.pull-request-number != ''
+        uses: actions/github-script@v8
+        env:
+          PULL_REQUEST_URL: ${{ steps.cpr.outputs.pull-request-url }}
+          PULL_REQUEST_NUMBER: ${{ steps.cpr.outputs.pull-request-number }}
+          PULL_REQUEST_OPERATION: ${{ steps.cpr.outputs.pull-request-operation }}
+        with:
+          script: |
+            const url = process.env.PULL_REQUEST_URL;
+            const number = process.env.PULL_REQUEST_NUMBER;
+            const operation = process.env.PULL_REQUEST_OPERATION || 'created';
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `Thanks! Actions ${operation} a draft catalogue PR: [#${number}](${url}).
+
+            The catalogue row and details have been prepared automatically. A maintainer will review the information and CI results before merging. You can edit this issue if something needs correcting; Actions will update the same draft PR.`
+            });
+
+      - name: Report that no changes were generated
+        if: steps.generate.outcome == 'success' && steps.cpr.outputs.pull-request-number == ''
+        uses: actions/github-script@v8
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: 'Actions did not create a pull request because the generated README content had no changes. The project may already be listed. Please check the catalogue or add any missing information before editing this issue again.'
+            });
+
+      - name: Explain an invalid or incomplete submission
+        if: failure()
+        uses: actions/github-script@v8
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: 'Actions could not prepare this catalogue entry. Check that the form includes an official GitHub repository, a confirmed Linux package format, installation instructions and at least one HTTPS source. If the workflow reports a permission error while creating the PR, a repository admin must enable **Settings → Actions → General → Allow GitHub Actions to create and approve pull requests**. You can edit this issue and Actions will try again.'
+            });
+
+      - name: Dispatch validation for the generated PR branch
+        if: steps.cpr.outputs.pull-request-number != ''
+        uses: actions/github-script@v8
+        env:
+          BRANCH_NAME: catalogue/issue-${{ github.event.issue.number }}
+        with:
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'verify.yml',
+              ref: 'main',
+              inputs: { checkout_ref: process.env.BRANCH_NAME }
+            });

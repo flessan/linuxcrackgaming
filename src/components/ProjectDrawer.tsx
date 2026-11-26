@@ -120,7 +120,7 @@ export function ProjectDrawer({ project, isSaved, onToggleSave, onClose }: Proje
               </div>
             </div>
 
-            {recipe && (
+            {recipe ? (
               <div className="mt-4">
                 <CopyPill command={recipe.command} label={recipe.label} />
                 {recipe.note && (
@@ -130,6 +130,10 @@ export function ProjectDrawer({ project, isSaved, onToggleSave, onClose }: Proje
                   </p>
                 )}
               </div>
+            ) : (
+              <p className="mt-4 text-sm leading-relaxed text-[#78665A]">
+                Installation steps have not been added yet. Check the upstream source or project website for current instructions.
+              </p>
             )}
           </section>
 
